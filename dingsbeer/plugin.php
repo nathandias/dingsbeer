@@ -9,6 +9,6 @@
  * Author URI: https://nathandias.com
  */
 
-require __DIR__ . '/vendor/autoload.php';
+// require __DIR__ . '/vendor/autoload.php';
 
 include __DIR__ . '/beers.php';
