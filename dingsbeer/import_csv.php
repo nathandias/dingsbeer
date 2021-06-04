@@ -1,13 +1,8 @@
 <?php
 
-function enclose_td ($text) {
-    return "<td>" . $text . "</td>";
-}
-
-global $wpdb;
-
-// Table name
-$tablename = $wpdb->prefix."customplugin";
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
 
 ?>
@@ -22,58 +17,84 @@ $tablename = $wpdb->prefix."customplugin";
 <?php
 
 // Import CSV
+
+
+// $uploaded_filename = $tmp_filename = __DIR__ . '/test/dingsbeerblog_reviews.csv';
+
 if(isset($_POST['butimport'])){
 
+  $uploaded_filename = $_FILES['import_file']['name'];
+
+  error_log("DIR: " . __DIR__ );
+  error_log("UPLOAD NAME: " . $uploaded_filename);
+ 
   // File extension
-  $extension = pathinfo($_FILES['import_file']['name'], PATHINFO_EXTENSION);
+  $extension = pathinfo($uploaded_filename, PATHINFO_EXTENSION);
 
   // If file extension is 'csv'
-  if(!empty($_FILES['import_file']['name']) && $extension == 'csv'){
+  if(!empty($uploaded_filename) && $extension == 'csv'){
 
     $totalInserted = 0;
 
+    $tmp_filename = $_FILES['import_file']['tmp_name'];
+    error_log("TMP NAME: " . $tmp_filename);
+    error_log("DOCUMENT ATTACH: " . var_export($_FILES));
     // Open file in read mode
-    $csvFile = fopen($_FILES['import_file']['tmp_name'], 'r');
 
-    // fgetcsv($csvFile); // Skipping header row
+    $csvFile = fopen($tmp_filename, 'r') or die ("can't open file");
+
+    fgetcsv($csvFile); // Skipping header row
 
     echo "<table width='100%' border='1' style='border-collapse: collapse'>\n";
     echo "<tbody>\n";
 
 
+    $rowCount = 0;
+
     // Read file
     while(($csvData = fgetcsv($csvFile)) !== FALSE){
 
-      $csvData = array_map("utf8_encode", $csvData);
+      $rowCount++;
+      error_log("attempting insert of row # " . $rowCount);
 
-      fgetcsv($csvFile); // Skipping header row
+      $csvData = array_map("utf8_encode", $csvData);
 
       // Row column length
       $dataLen = count($csvData);
 
       // Skip row if length != 15
-      if( !($dataLen == 15) ) continue;
+      if( !($dataLen == 15) ) {
+        echo "skipping line";
+        continue;
+      }
 
       // Assign value to variables
       list ($brewery, $beer_name, $series_name, $year, $style, $abv, $format, $total,
         $a, $s, $t, $m, $o, $review_date, $notes) = array_map('trim', $csvData);
 
-        $post_id = wp_insert_post(array(
-            'post_title'=> $beer_name, 
-            'post_type'=>'dingsbeerblog_beer', 
-            'post_content'=> $notes,
-            'post_status' => 'published',
-            'comment_status' => 'closed',
-            'pingback_status' => 'closed',
-        ));
+      $post_id = wp_insert_post(array(
+        'post_title'=> htmlentities($beer_name), 
+        'post_type'=>'dingsbeerblog_beer', 
+        'post_content'=> htmlentities($notes),
+        'post_status' => 'publish',
+        'comment_status' => 'closed',
+        'pingback_status' => 'closed',
+      ));
 
+      if ($post_id) {
+        error_log("inserted post_id = $post_id");
+      } else {
+        error_log("failed to insert that row");
+      }
+
+      
      if ($post_id) {
         // insert post meta
         $meta_key_names = array('brewery', 'series_name', 'year', 'style', 'abv', 'format', 'total',
             'a', 's', 't', 'm', 'o', 'review_date');
 
         foreach ($meta_key_names as $meta_key_name) {
-            add_post_meta($post_id, $meta_key_name, ${"$meta_key_name"});
+            add_post_meta($post_id, $meta_key_name, htmlentities(${"$meta_key_name"}));
         }
 
      }

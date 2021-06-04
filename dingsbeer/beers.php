@@ -19,7 +19,6 @@ function dingsbeerblog_register_post_meta () {
     $args['year'] = array('description' => 'Year', 'type' => 'integer');
     $args['style'] = array('description' => 'Style');
     $args['ABV'] = array('description" => ABV', 'type' => 'number');
-    //$args['format'] = array();
     $args['A'] = array('description' => 'A', 'type' => 'number');
     $args['S'] = array('description' => 'S', 'type' => 'number');
     $args['T'] = array('description' => 'T', 'type' => 'number');
@@ -36,16 +35,16 @@ function dingsbeerblog_register_post_meta () {
 function dingsbeerblog_register_post_type() {
 
     $labels = array(
-        'name' => __( 'Beers', ‘dingsbeerblog’ ),
-        'singular_name' => __( 'Beer', ‘dingsbeerblog’ ),
-        'add_new' => __( 'New Beer', ‘dingsbeerblog’ ),
-        'add_new_item' => __( 'Add New Beer', ‘dingsbeerblog’ ),
-        'edit_item' => __( 'Edit Beer', ‘dingsbeerblog’ ),
-        'new_item' => __( 'New Beer', ‘dingsbeerblog’ ),
-        'view_item' => __( 'View Beers', ‘dingsbeerblog’ ),
-        'search_items' => __( 'Search Beers', ‘dingsbeerblog’ ),
-        'not_found' =>  __( 'No Beers Found', ‘dingsbeerblog’ ),
-        'not_found_in_trash' => __( 'No Beers found in Trash', ‘dingsbeerblog’ ),
+        'name' => __( 'Beers', 'dingsbeerblog' ),
+        'singular_name' => __( 'Beer', 'dingsbeerblog' ),
+        'add_new' => __( 'New Beer', 'dingsbeerblog' ),
+        'add_new_item' => __( 'Add New Beer', 'dingsbeerblog' ),
+        'edit_item' => __( 'Edit Beer', 'dingsbeerblog' ),
+        'new_item' => __( 'New Beer', 'dingsbeerblog' ),
+        'view_item' => __( 'View Beers', 'dingsbeerblog' ),
+        'search_items' => __( 'Search Beers', 'dingsbeerblog' ),
+        'not_found' =>  __( 'No Beers Found', 'dingsbeerblog' ),
+        'not_found_in_trash' => __( 'No Beers found in Trash', 'dingsbeerblog' ),
        );
 
     
@@ -62,7 +61,7 @@ function dingsbeerblog_register_post_type() {
         'thumbnail',
         'page-attributes'
     ),
-    'taxonomies' => 'category',
+    'taxonomies' => array('category'),
     'rewrite'   => array( 'slug' => 'beer' ),
     'show_in_rest' => true
     );
