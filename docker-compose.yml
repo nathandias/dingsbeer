@@ -30,5 +30,7 @@ services:
     volumes:
       - "./wordpress:/var/www/html"
       - "./dingsbeer:/var/www/html/wp-content/plugins/dingsbeer"
-
+      - "./twentytwentyone-child:/var/www/html/wp-content/themes/twentytwentyone-child"
+      - "./yoko-child:/var/www/html/wp-content/themes/yoko-child"
+      
 

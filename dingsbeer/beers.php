@@ -68,7 +68,7 @@ function dingsbeerblog_register_post_type() {
 
      register_post_type('dingsbeerblog_beer', $args);
 
-     //dingsbeerblog_register_post_meta();
+     dingsbeerblog_register_post_meta();
 
 }
 
