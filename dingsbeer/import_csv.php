@@ -72,6 +72,9 @@ if(isset($_POST['butimport'])){
       list ($brewery, $beer_name, $series_name, $year, $style, $abv, $format, $total,
         $a, $s, $t, $m, $o, $review_date, $notes) = array_map('trim', $csvData);
 
+      // remove a percent sign from ABV if it's included
+      $abv = rtrim($abv, "\%");
+
       $post_id = wp_insert_post(array(
         'post_title'=> htmlentities($beer_name), 
         'post_type'=>'dingsbeerblog_beer', 
