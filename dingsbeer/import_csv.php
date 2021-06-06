@@ -75,11 +75,16 @@ if(isset($_POST['butimport'])){
       // remove a percent sign from ABV if it's included
       $abv = rtrim($abv, "\%");
 
+      // normalize the review date format
+      $review_date = new DateTime($review_date);
+      $review_date = $review_date->format('Y-m-d h:i:s');
+    
       $post_id = wp_insert_post(array(
         'post_title'=> htmlentities($beer_name), 
         'post_type'=>'dingsbeerblog_beer', 
         'post_content'=> htmlentities($notes),
         'post_status' => 'publish',
+        'post_date' => $review_date,
         'comment_status' => 'closed',
         'pingback_status' => 'closed',
       ));
@@ -93,12 +98,19 @@ if(isset($_POST['butimport'])){
       
      if ($post_id) {
         // insert post meta
-        $meta_key_names = array('brewery', 'series_name', 'year', 'style', 'abv', 'format', 'total',
+        $meta_key_names = array('series_name', 'year', 'abv', 'total',
             'a', 's', 't', 'm', 'o', 'review_date');
 
         foreach ($meta_key_names as $meta_key_name) {
             add_post_meta($post_id, $meta_key_name, htmlentities(${"$meta_key_name"}));
         }
+
+        // associate taxonomy terms with the post
+        // wp_create_term creates a new term if it doesn't exist already
+
+        wp_set_object_terms($post_id, $format, 'format');
+        wp_set_object_terms($post_id, $brewery, 'brewery');
+        wp_set_object_terms($post_id, $style, 'style');
 
      }
       

@@ -12,5 +12,5 @@
 // require __DIR__ . '/vendor/autoload.php';
 
 include __DIR__ . '/beers.php';
-
+include __DIR__ . '/search.php';
 include __DIR__ . '/admin.php';
