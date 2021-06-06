@@ -12,6 +12,20 @@ get_header(); ?>
 function get_post_meta_or_default($id, $key, $default = "-") {
 	return ($value = get_post_meta($id, $key, true)) ? $value : $default;
 }
+
+function get_taxonomy_terms($post_id, $taxonomy, $default = "-") {
+	$terms = get_the_terms($post_id, $taxonomy);
+	if ($terms) {
+		foreach ($terms as $term) {
+			$out[] = '<a class="' .$term->slug .'" href="' .get_term_link( $term->slug, $taxonomy) .'">' .$term->name .'</a>';
+		}
+		return join( ', ', $out );
+	} else {
+		return $default;
+	}
+
+}
+
 ?>
 
 <div id="wrap">
@@ -28,20 +42,35 @@ function get_post_meta_or_default($id, $key, $default = "-") {
 			<hr/>
 
 			<!-- method 1: loop over the custom fields -->
-			<?php $post_meta_keys = ['brewery', 'series', 'year', 'style', 'abv', 'a', 's', 't', 'm', 'o']; ?>
+			<?php
+				$post_meta_keys = ['year', 'abv', 'a', 's', 't', 'm', 'o'];
+				$custom_taxonomies = ['brewery', 'style', 'format'];
 
-			<?php foreach ($post_meta_keys as $post_meta_key) {	?>
+				foreach ($custom_taxonomies as $taxonomy) {
+				?>
+					<strong><?= ucfirst($taxonomy) ?>: </strong>
+					<?= get_taxonomy_terms($post->ID, $taxonomy) ?><br/>
+				<?php
+				}
 
-			<strong><?php echo ucwords($post_meta_key) ?>: </strong>
-				<?php echo get_post_meta_or_default($post->ID, $post_meta_key, "<em>not specified</em>"); ?><br/>
+				foreach ($post_meta_keys as $post_meta_key) {
+				?>
+					<strong><?= ucwords($post_meta_key) ?>: </strong>
+					<?= get_post_meta_or_default($post->ID, $post_meta_key, "<em>not specified</em>") ?><br/>
+				<?php
+				}
+			?>
 
-			<?php } ?>
+			
 
 			<hr/>
 
 			<!-- method 1: display fields individually -->
-			<strong>Brewery:</strong> <?php echo get_post_meta_or_default($post->ID, 'brewery'); ?>
-			<strong>Style:</strong> <?php echo get_post_meta_or_default($post->ID, 'style'); ?></br>
+			<strong>Brewery:</strong> <?php echo get_taxonomy_terms($post->ID, 'brewery'); ?>
+			<strong>Style:</strong> <?php echo get_taxonomy_terms($post->ID, 'style'); ?>
+			<strong>Format:</strong> <?php echo get_taxonomy_terms($post-ID, 'format'); ?>
+
+			<br/>
 
 			<strong>Series:</strong> <?php echo get_post_meta_or_default($post->ID, 'series'); ?>
 			<strong>Year:</strong> <?php echo get_post_meta_or_default($post->ID, 'year'); ?>
