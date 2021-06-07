@@ -10,7 +10,16 @@ error_reporting(E_ALL);
 <h3>Usage notes:</h3>
 <ol>
 <li>File size must be <= 2MB due to PHP file upload limits. If file size > 2MB, split into multiple files.</li>
-<li>File is expected to be in comma separated values format (CSV) with UTF-8 encoding</li>
+<li>File is expected to be in comma separated values format (CSV) with either UTF-8 or Windows 1252 encoding. Specify the encoding using the dropdown.</li>
+<li><strong>Recommended (works on Windows 10)</strong>:
+
+  <ul style="list-style-type:circle; margin-left: 10px; margin-top: 5px">
+    <li>Download the Google Sheet in Microsoft Excel (.xlsx) format.</li>
+    <li>Open in Excel, Save As... CSV (comma delimited)</li>
+    <li>From the Save As Dialog: Click Tools->Web Options->Encoding and select "UTF-8"</li>
+    <li>Make sure "UTF-8" is selected in the dropdown, before importing the file.</li>
+  </ul>
+</li>
 <li>First row should contain column headers, and will be skipped when parsing</li>
 <li>Expected column ordering/naming is:<br/>
 Brewery, Beer Name, Series Name, Year, Style, ABV, Format, Total, Appearance, Smell, Taste, Mouthfeel, Overall, Review Date, Notes</li>
@@ -18,7 +27,21 @@ Brewery, Beer Name, Series Name, Year, Style, ABV, Format, Total, Appearance, Sm
 
 <!-- Form -->
 <form method='post' action='<?= $_SERVER['REQUEST_URI']; ?>' enctype='multipart/form-data'>
-  <input type="file" name="import_file" />
+  
+<table style="text-align:left">
+<tbody>
+  <tr><th><label for="file_encoding">File Encoding</label></th><td>
+    <select name="file_encoding" id="file_encoding">
+      <option value="UTF-8" selected>UTF-8 (default)</option>
+      <option value="CP1252">Western European (Windows 1252)</option>
+    </select>
+  </td></tr>
+  <tr><th><label for="import_file">CSV file</label></th><td><input type="file" name="import_file" /></td></tr>
+  </tbody>
+  </table>
+
+  <br/>
+
   <input type="hidden" name="MAX_FILE_SIZE" value="2097152" />
   <input type="submit" name="butimport" value="Import">
 </form>
@@ -113,7 +136,15 @@ if(isset($_POST['butimport'])) {
         $rowCount++;
         error_log("attempting insert of row # " . $rowCount);
 
-        $csvData = array_map("utf8_encode", $csvData);
+        
+        if ($_POST['file_encoding'] == 'UTF-8') {
+          $csvData = array_map("utf8_encode", $csvData);
+        } elseif ($_POST['file_encoding'] == 'CP1252') {
+          $csvData = array_map('my_mb_encode', $csvData);
+        } else {
+          throw new RuntimeException ("Invalid file encoding specified: " . $_POST['file_encoding']);
+        }
+
 
         // Row column length
         $dataLen = count($csvData);
@@ -186,4 +217,9 @@ if(isset($_POST['butimport'])) {
       echo "<h3 style='color:red'>" . $e->getMessage() . "</h3>";
   
   }
+}
+
+
+function my_mb_encode($data) {
+  return mb_convert_encoding($data, "UTF-8", "CP1252");
 }
