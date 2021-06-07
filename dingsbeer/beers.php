@@ -30,11 +30,11 @@ function dingsbeerblog_register_post_meta () {
     $args['year'] = array('description' => 'Year', 'type' => 'integer');
     $args['style'] = array('description' => 'Style');
     $args['ABV'] = array('description" => ABV', 'type' => 'number');
-    $args['A'] = array('description' => 'A', 'type' => 'number');
-    $args['S'] = array('description' => 'S', 'type' => 'number');
-    $args['T'] = array('description' => 'T', 'type' => 'number');
-    $args['M'] = array('description' => 'M', 'type' => 'number');
-    $args['O'] = array('description' => 'O', 'type' => 'number');
+    $args['appearance'] = array('description' => 'Appearance', 'type' => 'number');
+    $args['smell'] = array('description' => 'Smell', 'type' => 'number');
+    $args['taste'] = array('description' => 'Taste', 'type' => 'number');
+    $args['mouthfeel'] = array('description' => 'Mouthfeel', 'type' => 'number');
+    $args['overall'] = array('description' => 'Overall', 'type' => 'number');
     //$args['review_date'] = array('description' => 'Review Date');
     //$args['notes'] = array('description' => 'Notes', 'type' => 'string');
 
@@ -75,6 +75,7 @@ function dingsbeerblog_register_post_type() {
     ),
     'taxonomies' => array('brewery', 'style', 'format'),
     'rewrite'   => array( 'slug' => 'beer' ),
+    'menu_icon' => 'dashicons-beer',
     'show_in_rest' => true
     );
 

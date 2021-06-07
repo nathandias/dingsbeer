@@ -20,7 +20,7 @@ function dbb_beer_review_search($atts = null) {
     // filter results on post meta fields
 
     $text_fields = ['brewery', 'series_name', 'style', 'format'];
-    $numeric_fields = ['year', 'abv', 'a', 's', 't', 'm', 'o'];
+    $numeric_fields = ['year', 'abv', 'appearance', 'smell', 'taste', 'mouthfeel', 'overall'];
 
     $meta_query = [];
     foreach ($text_fields as $text_field) {
@@ -145,7 +145,7 @@ function dbb_beer_review_search_form() {
         <div id="search_by" name="search_by">';
 
     $text_fields = ['beer_name', 'brewery', 'series_name', 'style', 'format', 'note'];
-    $numeric_fields = ['year', 'abv', 'a', 's', 't', 'm', 'o'];
+    $numeric_fields = ['year', 'abv', 'appearance', 'smell', 'taste', 'mouthfeel', 'overall'];
 
     $i = 0; // counter to help display two fields per line by adding <br/> to even numbered fields
     

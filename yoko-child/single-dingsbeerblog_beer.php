@@ -43,7 +43,7 @@ function get_taxonomy_terms($post_id, $taxonomy, $default = "-") {
 
 			<!-- method 1: loop over the custom fields -->
 			<?php
-				$post_meta_keys = ['year', 'abv', 'a', 's', 't', 'm', 'o'];
+				$post_meta_keys = ['series', 'year', 'abv', 'appearance', 'smell', 'taste', 'mouthfeel', 'overall'];
 				$custom_taxonomies = ['brewery', 'style', 'format'];
 
 				foreach ($custom_taxonomies as $taxonomy) {
@@ -65,21 +65,24 @@ function get_taxonomy_terms($post_id, $taxonomy, $default = "-") {
 
 			<hr/>
 
-			<!-- method 1: display fields individually -->
+			<!-- method 2: display fields individually -->
 			<strong>Brewery:</strong> <?php echo get_taxonomy_terms($post->ID, 'brewery'); ?>
 			<strong>Style:</strong> <?php echo get_taxonomy_terms($post->ID, 'style'); ?>
-			<strong>Format:</strong> <?php echo get_taxonomy_terms($post-ID, 'format'); ?>
+			<strong>Format:</strong> <?php echo get_taxonomy_terms($post->ID, 'format'); ?>
 
 			<br/>
 
 			<strong>Series:</strong> <?php echo get_post_meta_or_default($post->ID, 'series'); ?>
 			<strong>Year:</strong> <?php echo get_post_meta_or_default($post->ID, 'year'); ?>
 			<strong>ABV:</strong> <?php echo get_post_meta_or_default($post->ID, 'abv'); ?>
-			<strong>A:</strong> <?php echo get_post_meta_or_default($post->ID, 'a'); ?>
-			<strong>S:</strong> <?php echo get_post_meta_or_default($post->ID, 's'); ?>
-			<strong>T:</strong> <?php echo get_post_meta_or_default($post->ID, 't'); ?>
-			<strong>M:</strong> <?php echo get_post_meta_or_default($post->ID, 'm'); ?>
-			<strong>O:</strong> <?php echo get_post_meta_or_default($post->ID, 'o'); ?>
+
+			<br/>
+
+			<strong>Appearance:</strong> <?php echo get_post_meta_or_default($post->ID, 'appearance'); ?>
+			<strong>Smell:</strong> <?php echo get_post_meta_or_default($post->ID, 'smell'); ?>
+			<strong>Taste:</strong> <?php echo get_post_meta_or_default($post->ID, 'taste'); ?>
+			<strong>Mouthfeel:</strong> <?php echo get_post_meta_or_default($post->ID, 'mouthfeel'); ?>
+			<strong>Overall:</strong> <?php echo get_post_meta_or_default($post->ID, 'overall'); ?>
 
 		
 				
