@@ -1,9 +1,10 @@
 # Development To-Do List
 
 ## Import from CSV feature (import_csv.php)
+- investigate strange characters on imports or display
 X clean up error reporting message
 X handle file upload errors
-X- use beer mug icon
+X use beer mug icon
 
 ## Search page (search.php)
 - search should work with taxonomy terms
@@ -12,3 +13,4 @@ X- use beer mug icon
 
 ## Single Beer Review output
 X rename A, S, T, M, O labels according to Appearance, Smell, Taste, Mouthfeel, Overall
+
