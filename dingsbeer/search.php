@@ -184,13 +184,13 @@ function display_search_field($field_name, $type = 'text', $add_br = false) {
 
     $output = "
         <tr><td><label for='$full_field_name'>$human_field_name</label></td>
-        <td><input id='$full_field_name' name='$full_field_name' type='text' value='$prev_field_value'/></td>
+
         <td><select id='$compare_name' name='$compare_name'>
     ";
 
-    $options = ['', 'is', 'is_not', 'contains']; // default text field comparison options
+    $options = ['contains', 'is', 'is_not']; // default text field comparison options
     if ($type == 'numeric') {
-        $options = ['', 'equals', 'does_not_equal', 'less_than', 'less_than_or_equal', 'greater_than', 'greater_than_or_equal'];
+        $options = ['equals', 'does_not_equal', 'less_than', 'less_than_or_equal', 'greater_than', 'greater_than_or_equal'];
     }
 
     foreach ($options as $option) {
@@ -201,6 +201,8 @@ function display_search_field($field_name, $type = 'text', $add_br = false) {
     }
     
     $output .= "</select></td>";
+
+    $output .= "<td><input id='$full_field_name' name='$full_field_name' type='text' value='$prev_field_value'/></td>";
 
     $output .= "</tr>\n";
 
