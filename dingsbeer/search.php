@@ -140,24 +140,30 @@ function dbb_beer_review_search_form() {
 
     $form_output = '
         <div class="dingsbeerblog_beer_search">
-        <form action="" name="dbb_beer_search" method="get">
-        <label for="search_by">Search by:</label>
-        <div id="search_by" name="search_by">';
+        <form action="" name="dbb_beer_search" method="get">';
 
     $text_fields = ['beer_name', 'brewery', 'series_name', 'style', 'format', 'note'];
     $numeric_fields = ['year', 'abv', 'appearance', 'smell', 'taste', 'mouthfeel', 'overall'];
 
-    $i = 0; // counter to help display two fields per line by adding <br/> to even numbered fields
-    
+    $form_output .= "
+        <table>
+        <tbody>
+        <t><th colspan='3' id='search_by' style='text-align:left'><label for='search_by'>Search by:</label></th></tr>
+    ";
+
     foreach ($text_fields as $field) {
-        $form_output .= display_search_field($field, 'text') . "<br/>";
+        $form_output .= display_search_field($field, 'text');
     }
 
     foreach ($numeric_fields as $field) {
-        $form_output .= display_search_field($field, 'numeric') . "<br/>";
+        $form_output .= display_search_field($field, 'numeric');
     }
     $form_output .= '
+        </tbody>
+        </table>
+
         <input id="submit" type="submit" value="Search" />
+
         </form></div>';
     
     return $form_output;
@@ -177,15 +183,14 @@ function display_search_field($field_name, $type = 'text', $add_br = false) {
     $prev_compare_value = $_GET[$compare_name];
 
     $output = "
-        <label for='$full_field_name'>$human_field_name</label>
-        <input id='$full_field_name' name='$full_field_name' type='text' value='$prev_field_value'/>
+        <tr><td><label for='$full_field_name'>$human_field_name</label></td>
 
-        <select id='$compare_name' name='$compare_name'>
+        <td><select id='$compare_name' name='$compare_name'>
     ";
 
-    $options = ['', 'is', 'is_not', 'contains']; // default text field comparison options
+    $options = ['contains', 'is', 'is_not']; // default text field comparison options
     if ($type == 'numeric') {
-        $options = ['', 'equals', 'does_not_equal', 'less_than', 'less_than_or_equal', 'greater_than', 'greater_than_or_equal'];
+        $options = ['equals', 'does_not_equal', 'less_than', 'less_than_or_equal', 'greater_than', 'greater_than_or_equal'];
     }
 
     foreach ($options as $option) {
@@ -195,9 +200,11 @@ function display_search_field($field_name, $type = 'text', $add_br = false) {
         $output .= "<option value='$option' $selected>$human_option</option>";
     }
     
-    $output .= "</select>";
+    $output .= "</select></td>";
 
-    $output .= $add_br ? "<br/>\n" : "\n";
+    $output .= "<td><input id='$full_field_name' name='$full_field_name' type='text' value='$prev_field_value'/></td>";
+
+    $output .= "</tr>\n";
 
     return $output;
 
