@@ -41,3 +41,8 @@ reviews from the Google Sheets data.
         [beer_review_search]
 
 4. Save the page and visit permalink. You should see a form for searching and filtering beer reviews.
+
+# Recommended for Testing
+1. Install the optional plugin "Bulk Delete" to remove beers from the database (https://tinyurl.com/bulk-delete-plugin)
+2. You should be able to use various WordPress plugins and widgets to display custom post data, taxonomy and fields.
+E.g. List Custom Taxonomy Widget (https://wordpress.org/plugins/list-custom-taxonomy-widget/)
