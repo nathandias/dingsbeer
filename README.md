@@ -16,13 +16,13 @@ reviews from the Google Sheets data.
 
 The child theme provides customized page templates for displaying:
 
-| URL               | Description                                                                       |
-|-------------------|-----------------------------------------------------------------------------------|
-| /beer/            | alphabetical archive of all beer reviews (archive=dingsbeerblog_beer.php)         |
-| /brewery/<slug>   | archive of reviews for specified brewery (taxonomy.php)                           |
-| /style/<slug>     | archive of reviews for specified style (taxonomy.php)                             |
-| /format/<slug>    | archive of reviews for specified format (taxonomy.php)                            |
-| /<slug:beer_name> | a (single) beer review (single-dingsbeerblog_beer.php)                            |
+| URL             | Description                                                                       |
+|-----------------|-----------------------------------------------------------------------------------|
+| /beer/          | alphabetical archive of all beer reviews (archive=dingsbeerblog_beer.php)         |
+| /brewery/slug   | archive of reviews for specified brewery (taxonomy.php)                           |
+| /style/slug     | archive of reviews for specified style (taxonomy.php)                             |
+| /format/slug    | archive of reviews for specified format (taxonomy.php)                            |
+| /slug:beer_name | a (single) beer review (single-dingsbeerblog_beer.php)                            |
 
 # Search Page Setup
 
