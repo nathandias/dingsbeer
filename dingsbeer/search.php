@@ -108,15 +108,19 @@ function dbb_beer_review_search($atts = null) {
         'tax_query'=> $tax_query,
         'title_search_term' => $_GET['dbb_beer_search_beer_name'],
         'title_search_compare' => $_GET['dbb_beer_search_beer_name_compare'],
+        'content_search_term' => $_GET['dbb_beer_search_notes'],
+        'content_search_compare' => $_GET['dbb_beer_search_notes_compare'],
     );
     
     var_error_log($meta_query);
 
     
     // The Query
+    add_filter( 'posts_where', 'dbb_beer_content_filter', 10, 2);
     add_filter( 'posts_where', 'dbb_beer_title_filter', 10, 2 );
     $the_query = new WP_Query( $args );    
     remove_filter( 'posts_where', 'dbb_beer_title_filter', 10 );
+    remove_filter( 'posts_where', 'dbb_beer_content_filter', 10 );
     
     // The Loop
     if ( $the_query->have_posts() ) {
@@ -178,6 +182,7 @@ function dbb_beer_review_search_form() {
     ";
     
     $form_output .= display_search_field('beer_name', 'text');
+    $form_output .= display_search_field('notes', 'text');
 
     foreach ($tax_fields as $field) {
         $form_output .= display_tax_search_field($field);
@@ -304,5 +309,36 @@ function dbb_beer_title_filter($where, $wp_query) {
     
 
 
+    return $where;
+}
+
+function dbb_beer_content_filter($where, $wp_query) {
+    global $wpdb;
+
+    // the post content corresponds to the "Notes" field of the beer review
+
+    error_log("called dbb_beer_content_filter");
+    error_log("content_search_term: " . $wp_query->query['content_search_term']);
+
+    if ($search_term = $wp_query->query['content_search_term']) {
+        $compare = $wp_query->query['content_search_compare'];
+
+        error_log("compare = $compare");
+
+        switch ($compare) {
+            case 'contains':
+                $where .= ' AND ' . $wpdb->posts . '.post_content LIKE \'%' . $wpdb->esc_like( $search_term ) . '%\'';
+                break;
+            case 'is':
+                $where .= ' AND ' . $wpdb->posts . '.post_content = \'' . esc_sql( $search_term ) . '\'';
+                break;
+            case 'is_not':
+                $where .= ' AND ' . $wpdb->posts . '.post_content != \'' . esc_sql( $search_term ) . '\'';
+                break;
+            }
+    }
+    error_log("search term: $search_term");
+    error_log("where = $where");
+    
     return $where;
 }
