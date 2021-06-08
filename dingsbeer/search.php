@@ -7,8 +7,9 @@ add_shortcode('beer_review_search','dbb_beer_review_search');
 
 
 // Global Variables
+$post_fields = ['beer_name', 'notes'];
 $tax_fields = ['brewery', 'style', 'format'];
-$text_fields = ['beer_name', 'series_name', 'note'];
+$text_fields = ['series_name'];
 $numeric_fields = ['year', 'abv', 'appearance', 'smell', 'taste', 'mouthfeel', 'overall'];
 
 function dbb_beer_review_search($atts = null) {
@@ -38,31 +39,31 @@ function dbb_beer_review_search($atts = null) {
         }
     }
 
-    // foreach ($text_fields as $text_field) {
-    //     $search_term = $_GET["dbb_beer_search_${text_field}"];
-    //     $compare = $_GET["dbb_beer_search_${text_field}_compare"];
+    foreach ($text_fields as $text_field) {
+        $search_term = $_GET["dbb_beer_search_${text_field}"];
+        $compare = $_GET["dbb_beer_search_${text_field}_compare"];
 
-    //     error_log("processing $text_field: (search_term = '$search_term', compare = '$compare'");
+        error_log("processing $text_field: (search_term = '$search_term', compare = '$compare'");
 
-    //     if ($search_term == "") {
-    //         continue;
-    //     }
+        if ($search_term == "") {
+            continue;
+        }
 
-    //     switch ($compare) {
-    //         case 'is':
-    //             $compare_operator = '=';
-    //             break;
-    //         case 'is_not':
-    //             $compare_operator = '!=';
-    //             break;
-    //         case 'contains':
-    //             $compare_operator = "LIKE";
-    //             break;
-    //         default:
-    //             die("invalid comparison operator for field $text_field");
-    //     }
-    //     array_push($meta_query, array( 'key' => $text_field, 'value' => $search_term, 'compare' => $compare_operator));
-    // }
+        switch ($compare) {
+            case 'is':
+                $compare_operator = '=';
+                break;
+            case 'is_not':
+                $compare_operator = '!=';
+                break;
+            case 'contains':
+                $compare_operator = "LIKE";
+                break;
+            default:
+                die("invalid comparison operator for field $text_field");
+        }
+        array_push($meta_query, array( 'key' => $text_field, 'value' => $search_term, 'compare' => $compare_operator));
+    }
 
     foreach ($numeric_fields as $numeric_field) {
         $search_term = $_GET["dbb_beer_search_${numeric_field}"];
@@ -155,7 +156,7 @@ function dbb_beer_review_search($atts = null) {
 
         wp_reset_postdata();
     } else {
-        $output .= _e( 'Sorry, no posts matched your criteria.' );
+        $output .= esc_html( __( 'Sorry, no posts matched your criteria.' ));
     }
   
     return $output;
@@ -167,6 +168,7 @@ function dbb_beer_review_search($atts = null) {
 
 function dbb_beer_review_search_form() {
 
+    global $post_fields;
     global $tax_fields;
     global $text_fields;
     global $numeric_fields;
@@ -181,16 +183,17 @@ function dbb_beer_review_search_form() {
         <t><th colspan='3' id='search_by' style='text-align:left'><label for='search_by'>Search by:</label></th></tr>
     ";
     
-    $form_output .= display_search_field('beer_name', 'text');
-    $form_output .= display_search_field('notes', 'text');
+    foreach ($post_fields as $field) {
+        $form_output .= display_search_field($field, 'text');
+    }
 
     foreach ($tax_fields as $field) {
         $form_output .= display_tax_search_field($field);
     }
 
-    // foreach ($text_fields as $field) {
-    //     $form_output .= display_search_field($field, 'text');
-    // }
+    foreach ($text_fields as $field) {
+        $form_output .= display_search_field($field, 'text');
+    }
 
     foreach ($numeric_fields as $field) {
         $form_output .= display_search_field($field, 'numeric');

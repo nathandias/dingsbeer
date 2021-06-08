@@ -6,9 +6,6 @@ Beer Review custom post type import, entry, display and search for Ding's Beer B
 
 1. Go to: siteurl.com/wp-admin/ : Plugins -> Add New -> Upload Plugin and upload dbb_plugin.php
 2. Activate the plugin
-3. Go to: siteurl.com/wp-admin/ : Import Beer Reviews and follow the instructions there to import
-reviews from the Google Sheets data.
-*Note: upload file sizes must be <= 2MB, format must by CSV, and encoding must be UTF-8 or Windows 1252*
 
 # Yoko Child Theme Installation
 
@@ -24,6 +21,17 @@ The child theme provides customized page templates for displaying:
 | /format/slug    | archive of reviews for specified format (taxonomy.php)                            |
 | /slug:beer_name | a (single) beer review (single-dingsbeerblog_beer.php)                            |
 
+# Beer Review Import
+1. Go to: siteurl.com/wp-admin/ : Import Beer Reviews and follow the instructions there to import
+reviews from the Google Sheets data.
+*Note: upload file sizes must be <= 2MB, format must by CSV, and encoding must be UTF-8 or Windows 1252*
+
+# Adding a New Beer
+1. Go to: siteurl.com/wp-admin/ : Beers > New Beer
+2. Enter a title (beer name) and content (notes) in the main editing area
+3. In the "Custom Fields" section, select the Name of the field you want to add from the dropdown, and enter a corresponding value.
+4. click "Publish"
+
 # Search Page Setup
 
 1. Go to: dingsbeerblog.com/wp-admin/ : Pages > Add New
@@ -33,7 +41,3 @@ The child theme provides customized page templates for displaying:
         [beer_review_search]
 
 4. Save the page and visit permalink. You should see a form for searching and filtering beer reviews.
-
-
-
-
