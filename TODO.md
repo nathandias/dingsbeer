@@ -1,5 +1,17 @@
 # Development To-Do List
 
+## Customize DIVI them
+- add child theme code
+- add single.php
+- add archive.php
+- add taxonomy.php
+
+
+## FIX
+- brewery name special chars display correctly in admin but not in search form
+
+
+
 ## Import from CSV feature (import_csv.php)
 X investigate strange characters on imports or display
 X clean up error reporting message
@@ -16,7 +28,7 @@ X rename A, S, T, M, O labels according to Appearance, Smell, Taste, Mouthfeel, 
 
 
 # Investigate strange characters in imports:
-ADDRESSED
+## Addressed ( added file encoding dropdown to import form)
 Urthel SaisoonAire
 ImprovisaciÃ³n Oatmeal Rye India-style Brown Ale
 SÃ©rie Signature Kellerbier
