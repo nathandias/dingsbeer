@@ -1,6 +1,6 @@
 # dingsbeerblog / dingsbeerreviews
 
-Beer Review custom post type immport, entry, display and search for Ding's Beer Blog website
+Beer Review custom post type import, entry, display and search for Ding's Beer Blog website
 
 # Plugin Installation
 
