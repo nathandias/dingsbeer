@@ -5,7 +5,18 @@
 
 add_shortcode('beer_review_search','dbb_beer_review_search');
 
+
+// Global Variables
+$post_fields = ['beer_name', 'notes'];
+$tax_fields = ['brewery', 'style', 'format'];
+$text_fields = ['series_name'];
+$numeric_fields = ['year', 'abv', 'appearance', 'smell', 'taste', 'mouthfeel', 'overall'];
+
 function dbb_beer_review_search($atts = null) {
+
+    global $tax_fields;
+    global $text_fields;
+    global $numeric_fields;
 
     $output = dbb_beer_review_search_form();
 
@@ -14,24 +25,31 @@ function dbb_beer_review_search($atts = null) {
     // build the query
     $args = array('post_type' => 'dingsbeerblog_beer');
 
-    // need to search post_title (beer) & post_content (notes)
-    // HMMMM......
-
-    // filter results on post meta fields
-
-    $text_fields = ['brewery', 'series_name', 'style', 'format'];
-    $numeric_fields = ['year', 'abv', 'appearance', 'smell', 'taste', 'mouthfeel', 'overall'];
-
+    $tax_query = [];
     $meta_query = [];
+
+    foreach ($tax_fields as $tax_field) {
+        $search_term = $_GET["dbb_beer_search_${tax_field}"];
+        if ($search_term != "") {
+            array_push($tax_query, array(
+                'taxonomy' => $tax_field,
+                'field' => 'name',
+                'terms' => $search_term,
+            ));
+        }
+    }
+
     foreach ($text_fields as $text_field) {
         $search_term = $_GET["dbb_beer_search_${text_field}"];
         $compare = $_GET["dbb_beer_search_${text_field}_compare"];
 
         error_log("processing $text_field: (search_term = '$search_term', compare = '$compare'");
 
+        if ($search_term == "") {
+            continue;
+        }
+
         switch ($compare) {
-            case '':
-                continue 2; // skip to next field if this field's comapre type is blank
             case 'is':
                 $compare_operator = '=';
                 break;
@@ -50,9 +68,11 @@ function dbb_beer_review_search($atts = null) {
     foreach ($numeric_fields as $numeric_field) {
         $search_term = $_GET["dbb_beer_search_${numeric_field}"];
         $compare = $_GET["dbb_beer_search_${numeric_field}_compare"];
+
+        if ($search_term == "") {
+            continue;
+        }
         switch ($compare) {
-            case '':
-                continue 2; // skip to next field if this field's compare type is blank
             case 'equals':
                 $compare_operator = '=';
                 break;
@@ -78,6 +98,7 @@ function dbb_beer_review_search($atts = null) {
     }
 
 
+
     $paged = ( get_query_var( 'paged' ) ) ? get_query_var( 'paged' ) : 1;
     
     $args = array(
@@ -85,13 +106,22 @@ function dbb_beer_review_search($atts = null) {
         'posts_per_page' => 25,
         'paged' => $paged,
         'meta_query' => $meta_query,
+        'tax_query'=> $tax_query,
+        'title_search_term' => $_GET['dbb_beer_search_beer_name'],
+        'title_search_compare' => $_GET['dbb_beer_search_beer_name_compare'],
+        'content_search_term' => $_GET['dbb_beer_search_notes'],
+        'content_search_compare' => $_GET['dbb_beer_search_notes_compare'],
     );
     
     var_error_log($meta_query);
 
     
     // The Query
-    $the_query = new WP_Query( $args );
+    add_filter( 'posts_where', 'dbb_beer_content_filter', 10, 2);
+    add_filter( 'posts_where', 'dbb_beer_title_filter', 10, 2 );
+    $the_query = new WP_Query( $args );    
+    remove_filter( 'posts_where', 'dbb_beer_title_filter', 10 );
+    remove_filter( 'posts_where', 'dbb_beer_content_filter', 10 );
     
     // The Loop
     if ( $the_query->have_posts() ) {
@@ -126,7 +156,7 @@ function dbb_beer_review_search($atts = null) {
 
         wp_reset_postdata();
     } else {
-        $output .= _e( 'Sorry, no posts matched your criteria.' );
+        $output .= esc_html( __( 'Sorry, no posts matched your criteria.' ));
     }
   
     return $output;
@@ -138,18 +168,28 @@ function dbb_beer_review_search($atts = null) {
 
 function dbb_beer_review_search_form() {
 
+    global $post_fields;
+    global $tax_fields;
+    global $text_fields;
+    global $numeric_fields;
+
     $form_output = '
         <div class="dingsbeerblog_beer_search">
         <form action="" name="dbb_beer_search" method="get">';
-
-    $text_fields = ['beer_name', 'brewery', 'series_name', 'style', 'format', 'note'];
-    $numeric_fields = ['year', 'abv', 'appearance', 'smell', 'taste', 'mouthfeel', 'overall'];
 
     $form_output .= "
         <table>
         <tbody>
         <t><th colspan='3' id='search_by' style='text-align:left'><label for='search_by'>Search by:</label></th></tr>
     ";
+    
+    foreach ($post_fields as $field) {
+        $form_output .= display_search_field($field, 'text');
+    }
+
+    foreach ($tax_fields as $field) {
+        $form_output .= display_tax_search_field($field);
+    }
 
     foreach ($text_fields as $field) {
         $form_output .= display_search_field($field, 'text');
@@ -158,6 +198,7 @@ function dbb_beer_review_search_form() {
     foreach ($numeric_fields as $field) {
         $form_output .= display_search_field($field, 'numeric');
     }
+
     $form_output .= '
         </tbody>
         </table>
@@ -171,6 +212,38 @@ function dbb_beer_review_search_form() {
 
 function humanize($text) {
     return ucwords(str_replace("_", " ", $text));
+}
+
+function display_tax_search_field($tax_name) {
+    $full_field_name = 'dbb_beer_search_' . $tax_name;
+    $human_field_name = humanize($tax_name);
+    
+    $output = "<tr><td><label for='$full_field_name'>$human_field_name</label></td>
+    <td colspan='2'><select id='$full_field_name' name='$full_field_name'>
+    ";
+
+    $selected = ($_GET[$full_field_name] == '') ? 'selected' : '';
+
+    $output .= "<option value='' $selected><em>*show all*</em></option>";
+
+    $args = array(
+        'taxonomy'               => $tax_name,
+        'fields'                 => 'all',
+        'orderby'                => 'name',
+        'order'                  => 'ASC',
+        'hide_empty'             => false,
+    );
+    $the_query = new WP_Term_Query($args);
+    foreach($the_query->get_terms() as $term){ 
+        $term_name = $term->name;
+        $selected = ($_GET[$full_field_name] == $term_name) ? 'selected' : '';
+        $output .= "<option value='$term_name' $selected>$term_name</option>";
+    }
+
+    $output .= "</select></td></tr>\n";
+
+    return $output;
+
 }
 
 function display_search_field($field_name, $type = 'text', $add_br = false) {
@@ -208,4 +281,67 @@ function display_search_field($field_name, $type = 'text', $add_br = false) {
 
     return $output;
 
+}
+
+
+function dbb_beer_title_filter($where, $wp_query) {
+    global $wpdb;
+
+    error_log("called dbb_beer_title_filter");
+    error_log("title_search_term: " . $wp_query->query['title_search_term']);
+
+    if ($search_term = $wp_query->query['title_search_term']) {
+        $compare = $wp_query->query['title_search_compare'];
+
+        error_log("compare = $compare");
+
+        switch ($compare) {
+            case 'contains':
+                $where .= ' AND ' . $wpdb->posts . '.post_title LIKE \'%' . $wpdb->esc_like( $search_term ) . '%\'';
+                break;
+            case 'is':
+                $where .= ' AND ' . $wpdb->posts . '.post_title = \'' . esc_sql( $search_term ) . '\'';
+                break;
+            case 'is_not':
+                $where .= ' AND ' . $wpdb->posts . '.post_title != \'' . esc_sql( $search_term ) . '\'';
+                break;
+            }
+    }
+    error_log("search term: $search_term");
+    error_log("where = $where");
+    
+
+
+    return $where;
+}
+
+function dbb_beer_content_filter($where, $wp_query) {
+    global $wpdb;
+
+    // the post content corresponds to the "Notes" field of the beer review
+
+    error_log("called dbb_beer_content_filter");
+    error_log("content_search_term: " . $wp_query->query['content_search_term']);
+
+    if ($search_term = $wp_query->query['content_search_term']) {
+        $compare = $wp_query->query['content_search_compare'];
+
+        error_log("compare = $compare");
+
+        switch ($compare) {
+            case 'contains':
+                $where .= ' AND ' . $wpdb->posts . '.post_content LIKE \'%' . $wpdb->esc_like( $search_term ) . '%\'';
+                break;
+            case 'is':
+                $where .= ' AND ' . $wpdb->posts . '.post_content = \'' . esc_sql( $search_term ) . '\'';
+                break;
+            case 'is_not':
+                $where .= ' AND ' . $wpdb->posts . '.post_content != \'' . esc_sql( $search_term ) . '\'';
+                break;
+            }
+    }
+    error_log("search term: $search_term");
+    error_log("where = $where");
+    
+    return $where;
 }
