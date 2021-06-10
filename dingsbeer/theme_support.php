@@ -21,3 +21,25 @@ function get_taxonomy_terms($post_id, $taxonomy, $default = "-") {
 
 }
 
+function dbb_display_beer_review_custom_fields($post_id) {
+	global $custom_taxonomies;
+	global $post_meta_keys;
+
+	?>
+	<hr>
+	<?php
+	foreach ($custom_taxonomies as $taxonomy) {
+	?>
+		<strong><?= ucfirst($taxonomy) ?>: </strong>
+		<?= get_taxonomy_terms($post_id, $taxonomy) ?><br/>
+	<?php
+	}
+
+	foreach ($post_meta_keys as $post_meta_key) {
+	?>
+		<strong><?= ucwords($post_meta_key) ?>: </strong>
+		<?= get_post_meta_or_default($post_id, $post_meta_key, "<em>not specified</em>") ?><br/>
+	<?php
+	}
+}
+
