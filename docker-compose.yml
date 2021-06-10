@@ -32,5 +32,4 @@ services:
       - "./dingsbeer:/var/www/html/wp-content/plugins/dingsbeer"
       - "./twentytwentyone-child:/var/www/html/wp-content/themes/twentytwentyone-child"
       - "./yoko-child:/var/www/html/wp-content/themes/yoko-child"
-      
-
+      - "./Divi-child:/var/www/html/wp-content/themes/Divi-child"
