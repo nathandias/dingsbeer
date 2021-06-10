@@ -172,6 +172,14 @@ function dbb_register_taxonomy_style() {
 }
 add_action( 'init', 'dbb_register_taxonomy_style' );
 
+add_filter('use_classic_editor_for_beer_review_cpt', 'prefix_disable_gutenberg', 10, 2);
+function prefix_disable_gutenberg($current_status, $post_type)
+{
+    // Use your post type key instead of 'product'
+    if ($post_type === 'dingsbeerblog_beer_review') return false;
+    return $current_status;
+}
+
 
 
 
