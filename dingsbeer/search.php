@@ -27,6 +27,7 @@ function dbb_beer_review_search($atts = null) {
 
     $tax_query = [];
     $meta_query = [];
+    $date_query = [];
 
     foreach ($tax_fields as $tax_field) {
         $search_term = $_GET["dbb_beer_search_${tax_field}"];
@@ -97,7 +98,22 @@ function dbb_beer_review_search($atts = null) {
         array_push($meta_query, array( 'key' => $numeric_field, 'value' => $search_term, 'compare' => $compare_operator));
     }
 
+    $start_date = $_GET['dbb_beer_search_review_date_start'];
+    $end_date = $_GET['dbb_beer_search_review_date_end'];
+    error_log("start_date = $start_date");
+    error_log("end_date = $end_date");
 
+    $date_query = [];
+    $date_range = [];
+    if ($start_date != '') {
+        $date_range['after'] = $start_date;
+    }
+    if ($end_date != '') {
+        $date_range['before'] = $end_date;
+    }
+    if ($start_date != '' || $end_date != '') {
+        $date_query = array($date_range, 'inclusive' => true);
+    }
 
     $paged = ( get_query_var( 'paged' ) ) ? get_query_var( 'paged' ) : 1;
     
@@ -107,6 +123,7 @@ function dbb_beer_review_search($atts = null) {
         'paged' => $paged,
         'meta_query' => $meta_query,
         'tax_query'=> $tax_query,
+        'date_query' => $date_query,
         'title_search_term' => $_GET['dbb_beer_search_beer_name'],
         'title_search_compare' => $_GET['dbb_beer_search_beer_name_compare'],
         'content_search_term' => $_GET['dbb_beer_search_notes'],
@@ -180,7 +197,7 @@ function dbb_beer_review_search_form() {
     $form_output .= "
         <table>
         <tbody>
-        <t><th colspan='3' id='search_by' style='text-align:left'><label for='search_by'>Search by:</label></th></tr>
+        <tr><th colspan='3' id='search_by' style='text-align:left'><label for='search_by'>Search by:</label></th></tr>
     ";
     
     foreach ($post_fields as $field) {
@@ -198,6 +215,8 @@ function dbb_beer_review_search_form() {
     foreach ($numeric_fields as $field) {
         $form_output .= display_search_field($field, 'numeric');
     }
+
+    $form_output .= display_date_search_field('review_date');
 
     $form_output .= '
         </tbody>
@@ -224,7 +243,7 @@ function display_tax_search_field($tax_name) {
 
     $selected = ($_GET[$full_field_name] == '') ? 'selected' : '';
 
-    $output .= "<option value='' $selected><em>*show all*</em></option>";
+    $output .= "<option value='' $selected>*show all*</option>";
 
     $args = array(
         'taxonomy'               => $tax_name,
@@ -278,6 +297,23 @@ function display_search_field($field_name, $type = 'text', $add_br = false) {
     $output .= "<td><input id='$full_field_name' name='$full_field_name' type='text' value='$prev_field_value'/></td>";
 
     $output .= "</tr>\n";
+
+    return $output;
+
+}
+
+function display_date_search_field ($field)  {
+
+    $human_field_name = humanize($field);
+    $start_date_field = 'dbb_beer_search_' . $field . '_start';
+    $prev_start_date = $_GET[$start_date_field];
+    $end_date_field = 'dbb_beer_search_' . $field . '_end';
+    $prev_end_date = $_GET[$end_date_field];
+
+    $output .= "<tr><td style='vertical-align:top'><label for='$start_date_field'>$human_field_name</label></td>";
+
+    $output .= "<td>From<br/><input type='text' id='$start_date_field' name='$start_date_field' value='$prev_start_date' /></td>";
+    $output .= "<td>To<br/> <input type='text' id='$end_date_field' name='$end_date_field' value='$prev_end_date' /></td></tr>";
 
     return $output;
 

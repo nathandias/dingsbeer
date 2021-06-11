@@ -41,5 +41,8 @@ function dbb_display_beer_review_custom_fields($post_id) {
 		<?= get_post_meta_or_default($post_id, $post_meta_key, "<em>not specified</em>") ?><br/>
 	<?php
 	}
+	
+	$post_date = get_the_date(  'l, F j, Y' );
+	echo "<strong>Review date:</strong> $post_date<br/>\n";
 }
 
