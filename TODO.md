@@ -7,7 +7,6 @@
 ## Search page (search.php)
 - search by review date
 - add form reset button
-- add nonces
 - add form validation (numeric, text)
 ## Security audit
 - nonce/csfr token added to beer review search form
