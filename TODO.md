@@ -1,11 +1,5 @@
 # Development To-Do List
-## Customize DIVI them
-- add child theme code
-- add single.php
-- add archive.php
-- add taxonomy.php
 ## Search page (search.php)
-- search by review date
 - add form reset button
 - add form validation (numeric, text)
 ## Security audit
@@ -27,6 +21,18 @@ Import Page: does add data to the database
 
 Should probably use a nonce on the Import Page at a minimum
 Not necessarily needed.
+
+---------------------------------------
+# DONE
+
+## Customize DIVI them
+- add child theme code
+- add single.php
+
+## Search page (search.php)
+- search by review date
+
+
 
 
 
