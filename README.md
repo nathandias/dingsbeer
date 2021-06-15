@@ -7,10 +7,11 @@ Beer Review custom post type import, entry, display and search for Ding's Beer B
 1. Go to: siteurl.com/wp-admin/ : Plugins -> Add New -> Upload Plugin and upload dbb_plugin.php
 2. Activate the plugin
 
-# Child Theme Installation
-1. Go to: siteurl.com/wp-admin/ : Appearance > Themes > Add New > Upload Theme and upload Divi-child.zip
+# Divi Parent and Child Theme Installation
+1. Go to: siteurl.com/wp-admin/ : Appearance > Themese > Add New > Upload Theme and upload Divi.zip
+2. Go to: siteurl.com/wp-admin/ : Appearance > Themes > Add New > Upload Theme and upload Divi-child.zip
 
-(alternative: upload yoko-child.zip to use the yoko child theme)
+(alternative: upload yoko-child.zip to use the yoko child theme using the same process)
 
 The child theme provides customized page templates for displaying:
 
