@@ -1,8 +1,7 @@
 # Development To-Do List
 
-## FIX
-- still a few special characters with strange display:
-see: "pivovar"
+# Search Page
+- validate the review date fields...entries are valid dates + 1st date <= 2nd date
 ## Search page (search.php)
 - add form reset button
 ## Optional Addition
@@ -22,6 +21,10 @@ see: "pivovar"
 ## Security audit
 - escape SQL values for beer review search form
 - escape SQL values for csv file import form
+
+## FIXED
+- still a few special characters with strange display:
+see: "pivovar" -- works with Windows 1252 encoding
 
 ---------------------------------------
 

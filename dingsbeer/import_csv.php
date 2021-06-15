@@ -152,9 +152,9 @@ if(isset($_POST['butimport'])) {
 
           
           if ($_POST['file_encoding'] == 'UTF-8') {
-            $csvData = array_map("utf8_encode", $csvData);
+            $csvData = array_map("utf8_normalize", $csvData);
           } elseif ($_POST['file_encoding'] == 'CP1252') {
-            $csvData = array_map('my_mb_encode', $csvData);
+            $csvData = array_map('encode_win1252_to_utf8', $csvData);
           } else {
             throw new RuntimeException ("Invalid file encoding specified: " . $_POST['file_encoding']);
           }
@@ -259,6 +259,14 @@ if(isset($_POST['butimport'])) {
 }
 
 
-function my_mb_encode($data) {
+# functions to convert/normalize character encodings
+function encode_win1252_to_utf8($data) {
   return mb_convert_encoding($data, "UTF-8", "CP1252");
+}
+
+function utf8_normalize($data) {
+  
+  # i.e. just in case the uploaded file isn't really UTF-8 encoded
+  return mb_convert_encoding($data, "UTF-8", "UTF-8");
+
 }
