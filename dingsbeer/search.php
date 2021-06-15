@@ -18,172 +18,197 @@ function dbb_beer_review_search($atts = null) {
     global $text_fields;
     global $numeric_fields;
 
+    error_log("here first");
+
     # generate the search form
     $output = dbb_beer_review_search_form();
 
-    # output the results of the previous search
-    $output .= '<h2>Results:</h2>';
+    error_log("here next");
 
-    # validate the submitted form data
-    if ($validation_errors = dbb_beer_search_validate_form()) {
-        $output .= $validation_errors;
-        return  __( $output );
-    }
+    $tried = ($_POST['tried'] == 'yes');
 
-    # build the query
-    $args = array('post_type' => 'dingsbeerblog_beer');
+    error_log("\$tried = $tried");
 
-    $tax_query = [];
-    $meta_query = [];
-    $date_query = [];
+    if ($tried) {
 
-    foreach ($tax_fields as $tax_field) {
-        $search_term = $_POST["dbb_beer_search_${tax_field}"];
-        if ($search_term != "") {
-            array_push($tax_query, array(
-                'taxonomy' => $tax_field,
-                'field' => 'name',
-                'terms' => $search_term,
-            ));
-        }
-    }
+        error_log("here");
 
-    foreach ($text_fields as $text_field) {
-        $search_term = $_POST["dbb_beer_search_${text_field}"];
-        $compare = $_POST["dbb_beer_search_${text_field}_compare"];
+        if ( ! isset( $_POST['_dbb_nonce'] ) 
+            || ! wp_verify_nonce( $_POST['_dbb_nonce'], 'dbb_beer_search' ) 
+        ) {
+            error_log("nonce error");
+            print 'Sorry, your nonce did not verify.';
+            exit;
+        } else {
+            # passed the nonce verification, proceed
 
-        error_log("processing $text_field: (search_term = '$search_term', compare = '$compare'");
+            # output the results of the previous search
+            $output .= '<h2>Results:</h2>';
 
-        if ($search_term == "") {
-            continue;
-        }
+            # validate the submitted form data
+            if ($validation_errors = dbb_beer_search_validate_form()) {
+                $output .= $validation_errors;
+                return  __( $output );
+            }
 
-        switch ($compare) {
-            case 'is':
-                $compare_operator = '=';
-                break;
-            case 'is_not':
-                $compare_operator = '!=';
-                break;
-            case 'contains':
-                $compare_operator = "LIKE";
-                break;
-            default:
-                die("invalid comparison operator for field $text_field");
-        }
-        array_push($meta_query, array( 'key' => $text_field, 'value' => $search_term, 'compare' => $compare_operator));
-    }
+            # build the query
+            $args = array('post_type' => 'dingsbeerblog_beer');
 
-    foreach ($numeric_fields as $numeric_field) {
-        $search_term = $_POST["dbb_beer_search_${numeric_field}"];
-        $compare = $_POST["dbb_beer_search_${numeric_field}_compare"];
+            $tax_query = [];
+            $meta_query = [];
+            $date_query = [];
 
-        if ($search_term == "") {
-            continue;
-        }
-        switch ($compare) {
-            case 'equals':
-                $compare_operator = '=';
-                break;
-            case 'does_not_equal':
-                $compare_operator = '!=';
-                break;
-            case 'less_than':
-                $compare_operator = '<';
-                break;
-            case 'less_than_or_equal':
-                $compare_operator = '<=';
-                break;
-            case 'greater_than':
-                $compare_operator = '>';
-                break;
-            case 'greater_than_or_equal':
-                $compare_operator = '>=';
-                break;
-            default:
-                die("invalid comparison operator for field $numeric_field");
-        }
-        array_push($meta_query, array( 'key' => $numeric_field, 'value' => $search_term, 'type' => 'numeric', 'compare' => $compare_operator));
-    }
+            foreach ($tax_fields as $tax_field) {
+                $search_term = $_POST["dbb_beer_search_${tax_field}"];
+                if ($search_term != "") {
+                    array_push($tax_query, array(
+                        'taxonomy' => $tax_field,
+                        'field' => 'name',
+                        'terms' => $search_term,
+                    ));
+                }
+            }
 
-    $start_date = $_POST['dbb_beer_search_review_date_start'];
-    $end_date = $_POST['dbb_beer_search_review_date_end'];
-    error_log("start_date = $start_date");
-    error_log("end_date = $end_date");
+            foreach ($text_fields as $text_field) {
+                $search_term = $_POST["dbb_beer_search_${text_field}"];
+                $compare = $_POST["dbb_beer_search_${text_field}_compare"];
 
-    $date_query = [];
-    $date_range = [];
-    if ($start_date != '') {
-        $date_range['after'] = $start_date;
-    }
-    if ($end_date != '') {
-        $date_range['before'] = $end_date;
-    }
-    if ($start_date != '' || $end_date != '') {
-        $date_query = array($date_range, 'inclusive' => true);
-    }
+                error_log("processing $text_field: (search_term = '$search_term', compare = '$compare'");
 
-    $paged = ( get_query_var( 'paged' ) ) ? get_query_var( 'paged' ) : 1;
-    
-    $args = array(
-        'post_type' => 'dingsbeerblog_beer',
-        'posts_per_page' => 25,
-        'paged' => $paged,
-        'meta_query' => $meta_query,
-        'tax_query'=> $tax_query,
-        'date_query' => $date_query,
-        'title_search_term' => $_POST['dbb_beer_search_beer_name'],
-        'title_search_compare' => $_POST['dbb_beer_search_beer_name_compare'],
-        'content_search_term' => $_POST['dbb_beer_search_notes'],
-        'content_search_compare' => $_POST['dbb_beer_search_notes_compare'],
-    );
-    
-    var_error_log($meta_query);
+                if ($search_term == "") {
+                    continue;
+                }
 
-    
-    // The Query
-    add_filter( 'posts_where', 'dbb_beer_content_filter', 10, 2);
-    add_filter( 'posts_where', 'dbb_beer_title_filter', 10, 2 );
-    $the_query = new WP_Query( $args );    
-    remove_filter( 'posts_where', 'dbb_beer_title_filter', 10 );
-    remove_filter( 'posts_where', 'dbb_beer_content_filter', 10 );
-    
-    // The Loop
-    if ( $the_query->have_posts() ) {
-        $output .= '<ul>';
-        while ( $the_query->have_posts() ) {
-            $the_query->the_post();
+                switch ($compare) {
+                    case 'is':
+                        $compare_operator = '=';
+                        break;
+                    case 'is_not':
+                        $compare_operator = '!=';
+                        break;
+                    case 'contains':
+                        $compare_operator = "LIKE";
+                        break;
+                    default:
+                        die("invalid comparison operator for field $text_field");
+                }
+                array_push($meta_query, array( 'key' => $text_field, 'value' => $search_term, 'compare' => $compare_operator));
+            }
+
+            foreach ($numeric_fields as $numeric_field) {
+                $search_term = $_POST["dbb_beer_search_${numeric_field}"];
+                $compare = $_POST["dbb_beer_search_${numeric_field}_compare"];
+
+                if ($search_term == "") {
+                    continue;
+                }
+                switch ($compare) {
+                    case 'equals':
+                        $compare_operator = '=';
+                        break;
+                    case 'does_not_equal':
+                        $compare_operator = '!=';
+                        break;
+                    case 'less_than':
+                        $compare_operator = '<';
+                        break;
+                    case 'less_than_or_equal':
+                        $compare_operator = '<=';
+                        break;
+                    case 'greater_than':
+                        $compare_operator = '>';
+                        break;
+                    case 'greater_than_or_equal':
+                        $compare_operator = '>=';
+                        break;
+                    default:
+                        die("invalid comparison operator for field $numeric_field");
+                }
+                array_push($meta_query, array( 'key' => $numeric_field, 'value' => $search_term, 'type' => 'numeric', 'compare' => $compare_operator));
+            }
+
+            $start_date = $_POST['dbb_beer_search_review_date_start'];
+            $end_date = $_POST['dbb_beer_search_review_date_end'];
+            error_log("start_date = $start_date");
+            error_log("end_date = $end_date");
+
+            $date_query = [];
+            $date_range = [];
+            if ($start_date != '') {
+                $date_range['after'] = $start_date;
+            }
+            if ($end_date != '') {
+                $date_range['before'] = $end_date;
+            }
+            if ($start_date != '' || $end_date != '') {
+                $date_query = array($date_range, 'inclusive' => true);
+            }
+
+            $paged = ( get_query_var( 'paged' ) ) ? get_query_var( 'paged' ) : 1;
             
-            $output .= '<li><a href="' . get_permalink($post->ID) . '">' . get_the_title() . '</a></li>';
+            $args = array(
+                'post_type' => 'dingsbeerblog_beer',
+                'posts_per_page' => 25,
+                'paged' => $paged,
+                'meta_query' => $meta_query,
+                'tax_query'=> $tax_query,
+                'date_query' => $date_query,
+                'title_search_term' => $_POST['dbb_beer_search_beer_name'],
+                'title_search_compare' => $_POST['dbb_beer_search_beer_name_compare'],
+                'content_search_term' => $_POST['dbb_beer_search_notes'],
+                'content_search_compare' => $_POST['dbb_beer_search_notes_compare'],
+            );
+            
+            var_error_log($meta_query);
+
+            
+            // The Query
+            add_filter( 'posts_where', 'dbb_beer_content_filter', 10, 2);
+            add_filter( 'posts_where', 'dbb_beer_title_filter', 10, 2 );
+            $the_query = new WP_Query( $args );    
+            remove_filter( 'posts_where', 'dbb_beer_title_filter', 10 );
+            remove_filter( 'posts_where', 'dbb_beer_content_filter', 10 );
+            
+            // The Loop
+            if ( $the_query->have_posts() ) {
+                $output .= '<ul>';
+                while ( $the_query->have_posts() ) {
+                    $the_query->the_post();
+                    
+                    $output .= '<li><a href="' . get_permalink($post->ID) . '">' . get_the_title() . '</a></li>';
+                }
+                $output .= '</ul>';
+
+                $output .= '<div class="pagination">';
+
+                $output .= paginate_links( array(
+                    'base'         => str_replace( 999999999, '%#%', esc_url( get_pagenum_link( 999999999 ) ) ),
+                    'total'        => $the_query->max_num_pages,
+                    'current'      => max( 1, get_query_var( 'paged' ) ),
+                    'format'       => '?paged=%#%',
+                    'show_all'     => false,
+                    'type'         => 'plain',
+                    'end_size'     => 2,
+                    'mid_size'     => 1,
+                    'prev_next'    => true,
+                    'prev_text'    => sprintf( '<i></i> %1$s', __( 'Previous', 'text-domain' ) ),
+                    'next_text'    => sprintf( '%1$s <i></i>', __( 'Next', 'text-domain' ) ),
+                    'add_args'     => false,
+                    'add_fragment' => '',
+                ) );
+
+                // $output .= '</div>\n';
+
+                wp_reset_postdata();
+            } else {
+                $output .= 'Sorry, no posts matched your criteria.';
+            }
+        
+
         }
-        $output .= '</ul>';
 
-        $output .= '<div class="pagination">';
-
-        $output .= paginate_links( array(
-            'base'         => str_replace( 999999999, '%#%', esc_url( get_pagenum_link( 999999999 ) ) ),
-            'total'        => $the_query->max_num_pages,
-            'current'      => max( 1, get_query_var( 'paged' ) ),
-            'format'       => '?paged=%#%',
-            'show_all'     => false,
-            'type'         => 'plain',
-            'end_size'     => 2,
-            'mid_size'     => 1,
-            'prev_next'    => true,
-            'prev_text'    => sprintf( '<i></i> %1$s', __( 'Previous', 'text-domain' ) ),
-            'next_text'    => sprintf( '%1$s <i></i>', __( 'Next', 'text-domain' ) ),
-            'add_args'     => false,
-            'add_fragment' => '',
-        ) );
-
-        // $output .= '</div>\n';
-
-        wp_reset_postdata();
-    } else {
-        $output .= 'Sorry, no posts matched your criteria.';
     }
-  
-    return  __( $output );
+    return $output;
 }
 
 //
@@ -197,9 +222,16 @@ function dbb_beer_review_search_form() {
     global $text_fields;
     global $numeric_fields;
 
-    $form_output = '
-        <div class="dingsbeerblog_beer_search">
-        <form action="" name="dbb_beer_search" method="POST">';
+    error_log("dbb_beer_review_search_form");    
+
+    $form_output = "
+        <div class='dingsbeerblog_beer_search'>
+        <form action='" . $_SERVER['REQUEST_URI'] . "' name='dbb_beer_search' method='POST'>";
+
+    
+    $form_output .= wp_nonce_field( 'dbb_beer_search', '_dbb_nonce', true, false );
+
+    error_log("post nonce");
 
     $form_output .= "
         <table>
@@ -234,6 +266,8 @@ function dbb_beer_review_search_form() {
         <div style="text-align:right"><input id="submit" type="submit" value="Search" /></div>
 
         </form></div>';
+
+    error_log("almost there!");
     
     return $form_output;
 }
@@ -397,8 +431,6 @@ function dbb_beer_search_validate_form () {
     # Returns a string containing html for an unordered list of validation errors
     # -or- boolean false if no errors found
     # 
-
-    $tried = ($_POST['tried'] == 'yes');
 
     $validation_errors = [];
 
