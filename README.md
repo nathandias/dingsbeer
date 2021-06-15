@@ -17,10 +17,10 @@ The child theme provides customized page templates for displaying:
 
 | URL             | Description                                                                       |
 |-----------------|-----------------------------------------------------------------------------------|
-| /beer/          | alphabetical archive of all beer reviews (archive=dingsbeerblog_beer.php)         |
-| /brewery/slug   | archive of reviews for specified brewery (taxonomy.php)                           |
-| /style/slug     | archive of reviews for specified style (taxonomy.php)                             |
-| /format/slug    | archive of reviews for specified format (taxonomy.php)                            |
+| /beer/          | alphabetical archive of all beer reviews                                          |
+| /brewery/slug   | archive of reviews for specified brewery                                          |
+| /style/slug     | archive of reviews for specified style                                            |
+| /format/slug    | archive of reviews for specified format                                           |
 | /slug:beer_name | a (single) beer review (single-dingsbeerblog_beer.php)                            |
 
 # Beer Review Import
@@ -43,6 +43,16 @@ reviews from the Google Sheets data.
         [beer_review_search]
 
 4. Save the page and visit permalink. You should see a form for searching and filtering beer reviews.
+
+
+# Child Theme Notes
+- the plugin provides the function dbb_display_beer_review_custom_fields($post_id) to output custom fields for the post
+- use it in the loop like:
+
+   dbb_display_beer_review_custom_fields($post->ID)
+
+See Divi-child.zip > single-dingsbeerblog_beer.php for an example of usage.
+See dbb_plugin.zip > theme_support.php for the code that outputs the custom fields.
 
 # Optional support plugins
 1. Use "Bulk Delete" to remove beer review posts from the database en masse (https://wordpress.org/plugins/bulk-delete/)
