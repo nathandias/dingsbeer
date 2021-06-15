@@ -18,20 +18,12 @@ function dbb_beer_review_search($atts = null) {
     global $text_fields;
     global $numeric_fields;
 
-    error_log("here first");
-
     # generate the search form
     $output = dbb_beer_review_search_form();
 
-    error_log("here next");
-
     $tried = ($_POST['tried'] == 'yes');
 
-    error_log("\$tried = $tried");
-
     if ($tried) {
-
-        error_log("here");
 
         if ( ! isset( $_POST['_dbb_nonce'] ) 
             || ! wp_verify_nonce( $_POST['_dbb_nonce'], 'dbb_beer_search' ) 
@@ -222,8 +214,6 @@ function dbb_beer_review_search_form() {
     global $text_fields;
     global $numeric_fields;
 
-    error_log("dbb_beer_review_search_form");    
-
     $form_output = "
         <div class='dingsbeerblog_beer_search'>
         <form action='" . $_SERVER['REQUEST_URI'] . "' name='dbb_beer_search' method='POST'>";
@@ -267,10 +257,12 @@ function dbb_beer_review_search_form() {
 
         </form></div>';
 
-    error_log("almost there!");
-    
     return $form_output;
 }
+
+
+
+
 
 function humanize($text) {
     return ucwords(str_replace("_", " ", $text));
