@@ -120,15 +120,19 @@ function dbb_beer_review_search($atts = null) {
 
             $start_date = $_POST['dbb_beer_search_review_date_start'];
             $end_date = $_POST['dbb_beer_search_review_date_end'];
+
             error_log("start_date = $start_date");
             error_log("end_date = $end_date");
+
 
             $date_query = [];
             $date_range = [];
             if ($start_date != '') {
+                $start_date = DateTime::createFromFormat('n-j-Y', $start_date)->format('Y-m-d');
                 $date_range['after'] = $start_date;
             }
             if ($end_date != '') {
+                $end_date = DateTime::createFromFormat('n-j-Y', $end_date)->format('Y-m-d');
                 $date_range['before'] = $end_date;
             }
             if ($start_date != '' || $end_date != '') {
@@ -457,8 +461,47 @@ function dbb_beer_search_validate_form () {
         }
     }
 
+    # the field names
+    $start_date_fn = 'dbb_beer_search_review_date_start';
+    $end_date_fn = 'dbb_beer_search_review_date_end';
+    
+    $both_dates_valid = true;
+    $date_fields = array('review_date_start', 'review_date_end');
+    foreach ($date_fields as $date_field) {
+        $actual_date_field = 'dbb_beer_search_' . $date_field;
+        $value = $_POST[$actual_date_field];
+
+        error_log("\$date_field = $date_field, \$value = $value");
+
+
+        if (validateDate($value) || $value == '') {
+        } else {
+            array_push($validation_errors, humanize($date_field) . " should be a date in MM-DD-YYYY format");
+            $both_dates_valid = false;
+        }
+    }
+
+    error_log("\$both_dates_valid == $both_dates_valid");
+    # start of review date search range must occur before end, if both start and end specified
+    if ($both_dates_valid && ($_POST[$start_date_fn] != '') && ($_POST[$end_date_fn] != '')) {
+
+        $start_date = DateTime::createFromFormat('n-j-Y', $_POST[$start_date_fn]);
+        $end_date = DateTime::createFromFormat('n-j-Y', $_POST[$end_date_fn]);
+
+        error_log("\$start_date (validating) = " . $start_date->format('n-j-Y'));
+        error_log("\$end_date (validating) = " . $end_date->format('n-j-Y'));
+    
+        if ($start_date > $end_date) {
+            array_push($validation_errors, "Review date: start of date range must occur before end");
+        }  
+    }
+
+
+
+
+
     if ($validation_errors) {
-        $output = "<strong style='color:red'>Invalid search terms. Please fix these errors.</strong>\n";
+        $output = "<strong style='color:red'>Invalid search terms. Please fix these problems.</strong>\n";
         $output .= "<ul>\n";
         foreach ($validation_errors as $validation_error) {
             $output .= "<li>$validation_error</li>\n";
@@ -468,4 +511,9 @@ function dbb_beer_search_validate_form () {
     } else {
         return false; # passed validation, no errors returned
     }
+}
+
+function validateDate($date, $format = 'n-j-Y') {
+    $d = DateTime::createFromFormat($format, $date);
+    return $d && $d->format($format) == $date;
 }
