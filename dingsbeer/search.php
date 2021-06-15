@@ -1,13 +1,13 @@
 <?php
-//
-// Add a shortcode that displays and processes a beer review search form 
-//
+#
+# Add a shortcode that displays and processes a beer review search form 
+#
 
 add_shortcode('beer_review_search','dbb_beer_review_search');
 
 
-// Global Variables
-$post_fields = ['beer_name', 'notes'];
+# Global Variables
+$post_fields = ['beer_name', 'notes']; # the custom post type title and content fields
 $tax_fields = ['brewery', 'style', 'format'];
 $text_fields = ['series_name'];
 $numeric_fields = ['year', 'abv', 'appearance', 'smell', 'taste', 'mouthfeel', 'overall'];
@@ -18,11 +18,19 @@ function dbb_beer_review_search($atts = null) {
     global $text_fields;
     global $numeric_fields;
 
+    # generate the search form
     $output = dbb_beer_review_search_form();
 
+    # output the results of the previous search
     $output .= '<h2>Results:</h2>';
 
-    // build the query
+    # validate the submitted form data
+    if ($validation_errors = dbb_beer_search_validate_form()) {
+        $output .= $validation_errors;
+        return  __( $output );
+    }
+
+    # build the query
     $args = array('post_type' => 'dingsbeerblog_beer');
 
     $tax_query = [];
@@ -30,7 +38,7 @@ function dbb_beer_review_search($atts = null) {
     $date_query = [];
 
     foreach ($tax_fields as $tax_field) {
-        $search_term = $_GET["dbb_beer_search_${tax_field}"];
+        $search_term = $_POST["dbb_beer_search_${tax_field}"];
         if ($search_term != "") {
             array_push($tax_query, array(
                 'taxonomy' => $tax_field,
@@ -41,8 +49,8 @@ function dbb_beer_review_search($atts = null) {
     }
 
     foreach ($text_fields as $text_field) {
-        $search_term = $_GET["dbb_beer_search_${text_field}"];
-        $compare = $_GET["dbb_beer_search_${text_field}_compare"];
+        $search_term = $_POST["dbb_beer_search_${text_field}"];
+        $compare = $_POST["dbb_beer_search_${text_field}_compare"];
 
         error_log("processing $text_field: (search_term = '$search_term', compare = '$compare'");
 
@@ -67,8 +75,8 @@ function dbb_beer_review_search($atts = null) {
     }
 
     foreach ($numeric_fields as $numeric_field) {
-        $search_term = $_GET["dbb_beer_search_${numeric_field}"];
-        $compare = $_GET["dbb_beer_search_${numeric_field}_compare"];
+        $search_term = $_POST["dbb_beer_search_${numeric_field}"];
+        $compare = $_POST["dbb_beer_search_${numeric_field}_compare"];
 
         if ($search_term == "") {
             continue;
@@ -95,11 +103,11 @@ function dbb_beer_review_search($atts = null) {
             default:
                 die("invalid comparison operator for field $numeric_field");
         }
-        array_push($meta_query, array( 'key' => $numeric_field, 'value' => $search_term, 'compare' => $compare_operator));
+        array_push($meta_query, array( 'key' => $numeric_field, 'value' => $search_term, 'type' => 'numeric', 'compare' => $compare_operator));
     }
 
-    $start_date = $_GET['dbb_beer_search_review_date_start'];
-    $end_date = $_GET['dbb_beer_search_review_date_end'];
+    $start_date = $_POST['dbb_beer_search_review_date_start'];
+    $end_date = $_POST['dbb_beer_search_review_date_end'];
     error_log("start_date = $start_date");
     error_log("end_date = $end_date");
 
@@ -124,10 +132,10 @@ function dbb_beer_review_search($atts = null) {
         'meta_query' => $meta_query,
         'tax_query'=> $tax_query,
         'date_query' => $date_query,
-        'title_search_term' => $_GET['dbb_beer_search_beer_name'],
-        'title_search_compare' => $_GET['dbb_beer_search_beer_name_compare'],
-        'content_search_term' => $_GET['dbb_beer_search_notes'],
-        'content_search_compare' => $_GET['dbb_beer_search_notes_compare'],
+        'title_search_term' => $_POST['dbb_beer_search_beer_name'],
+        'title_search_compare' => $_POST['dbb_beer_search_beer_name_compare'],
+        'content_search_term' => $_POST['dbb_beer_search_notes'],
+        'content_search_compare' => $_POST['dbb_beer_search_notes_compare'],
     );
     
     var_error_log($meta_query);
@@ -145,7 +153,6 @@ function dbb_beer_review_search($atts = null) {
         $output .= '<ul>';
         while ( $the_query->have_posts() ) {
             $the_query->the_post();
-            
             
             $output .= '<li><a href="' . get_permalink($post->ID) . '">' . get_the_title() . '</a></li>';
         }
@@ -173,10 +180,10 @@ function dbb_beer_review_search($atts = null) {
 
         wp_reset_postdata();
     } else {
-        $output .= esc_html( __( 'Sorry, no posts matched your criteria.' ));
+        $output .= 'Sorry, no posts matched your criteria.';
     }
   
-    return $output;
+    return  __( $output );
 }
 
 //
@@ -192,7 +199,7 @@ function dbb_beer_review_search_form() {
 
     $form_output = '
         <div class="dingsbeerblog_beer_search">
-        <form action="" name="dbb_beer_search" method="get">';
+        <form action="" name="dbb_beer_search" method="POST">';
 
     $form_output .= "
         <table>
@@ -222,7 +229,9 @@ function dbb_beer_review_search_form() {
         </tbody>
         </table>
 
-        <input id="submit" type="submit" value="Search" />
+        <input type="hidden" name="tried" value="yes" />
+
+        <div style="text-align:right"><input id="submit" type="submit" value="Search" /></div>
 
         </form></div>';
     
@@ -241,7 +250,7 @@ function display_tax_search_field($tax_name) {
     <td colspan='2'><select id='$full_field_name' name='$full_field_name'>
     ";
 
-    $selected = ($_GET[$full_field_name] == '') ? 'selected' : '';
+    $selected = ($_POST[$full_field_name] == '') ? 'selected' : '';
 
     $output .= "<option value='' $selected>*show all*</option>";
 
@@ -255,7 +264,7 @@ function display_tax_search_field($tax_name) {
     $the_query = new WP_Term_Query($args);
     foreach($the_query->get_terms() as $term){ 
         $term_name = $term->name;
-        $selected = ($_GET[$full_field_name] == $term_name) ? 'selected' : '';
+        $selected = ($_POST[$full_field_name] == $term_name) ? 'selected' : '';
         $output .= "<option value='$term_name' $selected>$term_name</option>";
     }
 
@@ -269,10 +278,10 @@ function display_search_field($field_name, $type = 'text', $add_br = false) {
 
     $full_field_name = 'dbb_beer_search_' . $field_name;
     $human_field_name = humanize($field_name);
-    $prev_field_value = $_GET[$full_field_name];
+    $prev_field_value = $_POST[$full_field_name];
 
     $compare_name = $full_field_name . "_compare";
-    $prev_compare_value = $_GET[$compare_name];
+    $prev_compare_value = $_POST[$compare_name];
 
     $output = "
         <tr><td><label for='$full_field_name'>$human_field_name</label></td>
@@ -306,9 +315,9 @@ function display_date_search_field ($field)  {
 
     $human_field_name = humanize($field);
     $start_date_field = 'dbb_beer_search_' . $field . '_start';
-    $prev_start_date = $_GET[$start_date_field];
+    $prev_start_date = $_POST[$start_date_field];
     $end_date_field = 'dbb_beer_search_' . $field . '_end';
-    $prev_end_date = $_GET[$end_date_field];
+    $prev_end_date = $_POST[$end_date_field];
 
     $output .= "<tr><td style='vertical-align:top'><label for='$start_date_field'>$human_field_name</label></td>";
 
@@ -380,4 +389,53 @@ function dbb_beer_content_filter($where, $wp_query) {
     error_log("where = $where");
     
     return $where;
+}
+
+function dbb_beer_search_validate_form () {
+
+    #
+    # Returns a string containing html for an unordered list of validation errors
+    # -or- boolean false if no errors found
+    # 
+
+    $tried = ($_POST['tried'] == 'yes');
+
+    $validation_errors = [];
+
+    $short_text_fields = array('beer_name', 'brewery_name', 'format', 'style', 'series_name');
+
+    foreach ($short_text_fields as $text_field) {
+        $actual_text_field = 'dbb_beer_search_' . $text_field;
+        $value = $_POST[$actual_text_field];
+        if (strlen($value) > 256) {
+            array_push($validation_errors, humanize($text_field) . " is too long (must be less than 256 characters)");
+        }
+    }
+
+    $numeric_fields = array('abv', 'appearance', 'taste', 'smell', 'mouthfeel', 'overall');
+
+    foreach ($numeric_fields as $numeric_field) {
+        $actual_numeric_field = 'dbb_beer_search_' . $numeric_field;
+        $value = $_POST[$actual_numeric_field];
+
+        error_log("\$numeric_field = $numeric_field, \$value = $value");
+                
+        if (is_numeric($value) || $value == '') {
+
+        } else {
+            array_push($validation_errors, humanize($numeric_field) . " should be a number or left blank");
+        }
+    }
+
+    if ($validation_errors) {
+        $output = "<strong style='color:red'>Invalid search terms. Please fix these errors.</strong>\n";
+        $output .= "<ul>\n";
+        foreach ($validation_errors as $validation_error) {
+            $output .= "<li>$validation_error</li>\n";
+        }
+        $output .= "</ul>\n";
+        return $output;
+    } else {
+        return false; # passed validation, no errors returned
+    }
 }
