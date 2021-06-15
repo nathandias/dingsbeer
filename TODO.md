@@ -1,8 +1,5 @@
 # Development To-Do List
-## Security audit
-- nonce/csfr token added to beer review search form
-- escape SQL values for beer review search form
-- escape SQL values for csv file import form
+
 ## FIX
 - still a few special characters with strange display:
 see: "pivovar"
@@ -18,8 +15,13 @@ see: "pivovar"
 - add single.php
 
 ## Search page (search.php)
+- nonce/csfr token added to beer review search form
 - search by review date
 - add form validation (numeric, text)
+
+## Security audit
+- escape SQL values for beer review search form
+- escape SQL values for csv file import form
 
 ---------------------------------------
 
@@ -28,11 +30,9 @@ see: "pivovar"
 used with user actions
 1. custom post editing fields should be already protected by word press
 2. other places where I have forms
-Search Page: which does GET / select queries only
-Import Page: does add data to the database
-
-Should probably use a nonce on the Import Page at a minimum
-Not necessarily needed.
+Search Page: only does non-destructive queries (i.e. select)...so don't need it?
+Import Page: definitely changes (adds to) the database, so use a nonce
+*I used nonces on both forms*
 
 
 

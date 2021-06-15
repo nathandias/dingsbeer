@@ -5,7 +5,6 @@
 
 add_shortcode('beer_review_search','dbb_beer_review_search');
 
-
 # Global Variables
 $post_fields = ['beer_name', 'notes']; # the custom post type title and content fields
 $tax_fields = ['brewery', 'style', 'format'];
@@ -138,6 +137,14 @@ function dbb_beer_review_search($atts = null) {
 
             $paged = ( get_query_var( 'paged' ) ) ? get_query_var( 'paged' ) : 1;
             
+            # MySQL escaping notes
+            #
+            # meta_query, tax_query, and date_query handled directly by WP_Query, which handles escaping
+            # those parts of the query
+            #
+            # But, we build the post_title and post_content parts of the query ourselves, so must handle
+            # the escaping manually for those parts too
+
             $args = array(
                 'post_type' => 'dingsbeerblog_beer',
                 'posts_per_page' => 25,
@@ -193,7 +200,8 @@ function dbb_beer_review_search($atts = null) {
 
                 wp_reset_postdata();
             } else {
-                $output .= 'Sorry, no posts matched your criteria.';
+                $output .= esc_html( __(
+                    'Sorry, no posts matched your criteria.') );
             }
         
 
@@ -259,8 +267,6 @@ function dbb_beer_review_search_form() {
 
     return $form_output;
 }
-
-
 
 
 
@@ -371,10 +377,10 @@ function dbb_beer_title_filter($where, $wp_query) {
                 $where .= ' AND ' . $wpdb->posts . '.post_title LIKE \'%' . $wpdb->esc_like( $search_term ) . '%\'';
                 break;
             case 'is':
-                $where .= ' AND ' . $wpdb->posts . '.post_title = \'' . esc_sql( $search_term ) . '\'';
+                $where .= ' AND ' . $wpdb->posts . $wpdb->prepare(".post_title = %s", $search_term);           
                 break;
             case 'is_not':
-                $where .= ' AND ' . $wpdb->posts . '.post_title != \'' . esc_sql( $search_term ) . '\'';
+                $where .= ' AND ' . $wpdb->posts . $wpdb->prepare(".post_title != %s", $search_term);
                 break;
             }
     }

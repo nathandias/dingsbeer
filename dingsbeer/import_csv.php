@@ -26,7 +26,7 @@ Brewery, Beer Name, Series Name, Year, Style, ABV, Format, Total, Appearance, Sm
 </ol>
 
 <!-- Form -->
-<form method='post' action='<?= $_SERVER['REQUEST_URI']; ?>' enctype='multipart/form-data'>
+<form method='POST' action='<?= $_SERVER['REQUEST_URI']; ?>' enctype='multipart/form-data'>
 
 <?php wp_nonce_field( 'dbb_import_csv', '_dbb_nonce' ); ?>
   
@@ -201,6 +201,8 @@ if(isset($_POST['butimport'])) {
           foreach ($field_names as $field_name) {
             ${$field_name} =& $data[$field_name];
           }
+
+          # uses WordPress built-ins to insert data, so let WordPress handle escaping the queries
 
           $post_id = wp_insert_post(array(
             'post_title'=> $beer_name, 
