@@ -7,9 +7,10 @@ Beer Review custom post type import, entry, display and search for Ding's Beer B
 1. Go to: siteurl.com/wp-admin/ : Plugins -> Add New -> Upload Plugin and upload dbb_plugin.php
 2. Activate the plugin
 
-# Yoko Child Theme Installation
+# Child Theme Installation
+1. Go to: siteurl.com/wp-admin/ : Appearance > Themes > Add New > Upload Theme and upload Divi-child.zip
 
-1. Go to: siteurl.com/wp-admin/ : Appearance > Themes > Add New > Upload Theme and upload yoko-child.zip
+(alternative: upload yoko-child.zip to use the yoko child theme)
 
 The child theme provides customized page templates for displaying:
 
@@ -42,7 +43,8 @@ reviews from the Google Sheets data.
 
 4. Save the page and visit permalink. You should see a form for searching and filtering beer reviews.
 
-# Recommended for Testing
-1. Install the optional plugin "Bulk Delete" to remove beers from the database (https://tinyurl.com/bulk-delete-plugin)
-2. You should be able to use various WordPress plugins and widgets to display custom post data, taxonomy and fields.
-E.g. List Custom Taxonomy Widget (https://wordpress.org/plugins/list-custom-taxonomy-widget/)
+# Optional support plugins
+1. Use "Bulk Delete" to remove beer review posts from the database en masse (https://wordpress.org/plugins/bulk-delete/)
+2. Use "Taxo Press" that can be used to bulk delete unused taxonomy terms (https://wordpress.org/plugins/simple-tags/)
+3. Try List Custom Taxonomy Widget (and similar) to display custom post data, taxonomy and fields (https://wordpress.org/plugins/list-custom-taxonomy-widget/)
+
