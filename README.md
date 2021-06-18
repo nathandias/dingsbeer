@@ -8,7 +8,7 @@ Beer Review custom post type import, entry, display and search for Ding's Beer B
 2. Activate the plugin
 
 # Divi Parent and Child Theme Installation
-1. Go to: siteurl.com/wp-admin/ : Appearance > Themese > Add New > Upload Theme and upload Divi.zip
+1. Go to: siteurl.com/wp-admin/ : Appearance > Themes > Add New > Upload Theme and upload Divi.zip
 2. Go to: siteurl.com/wp-admin/ : Appearance > Themes > Add New > Upload Theme and upload Divi-child.zip
 
 (alternative: upload yoko-child.zip to use the yoko child theme using the same process)
@@ -22,6 +22,13 @@ The child theme provides customized page templates for displaying:
 | /style/slug     | archive of reviews for specified style                                            |
 | /format/slug    | archive of reviews for specified format                                           |
 | /slug:beer_name | a (single) beer review (single-dingsbeerblog_beer.php)                            |
+
+# Classic Post Editor
+1. Go to: siteurl.com/wp-admin/ : Appearance > Plugins > Add New
+2. Search for the WordPress Classic Editor and install it
+
+The classic post editor is needed to edit custom fields (ABV, Appearance, etc.). Once the classic editor is installed,
+the dingsbeer plugin should automatically use it for the beer review custom post type.
 
 # Beer Review Import
 1. Go to: siteurl.com/wp-admin/ : Import Beer Reviews and follow the instructions there to import
