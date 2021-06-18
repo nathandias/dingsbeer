@@ -18,7 +18,7 @@ function dbb_beer_review_search($atts = null) {
     global $numeric_fields;
 
     # generate the search form
-    $output = dbb_beer_review_search_form();
+    $output .= dbb_beer_review_search_form();
 
     $tried = ($_POST['tried'] == 'yes');
 
@@ -33,8 +33,7 @@ function dbb_beer_review_search($atts = null) {
         } else {
             # passed the nonce verification, proceed
 
-            # output the results of the previous search
-            $output .= '<h2>Results:</h2>';
+
 
             # validate the submitted form data
             if ($validation_errors = dbb_beer_search_validate_form()) {
@@ -162,7 +161,7 @@ function dbb_beer_review_search($atts = null) {
                 'content_search_compare' => $_POST['dbb_beer_search_notes_compare'],
             );
             
-            var_error_log($meta_query);
+            error_log($meta_query);
 
             
             // The Query
@@ -174,6 +173,10 @@ function dbb_beer_review_search($atts = null) {
             
             // The Loop
             if ( $the_query->have_posts() ) {
+                $output .= "<div id='dbb_beer_search_results' class='dbb_beer_search_results'>\n'";
+                
+                $output .= '<h2>Results:</h2>';
+
                 $output .= '<ul>';
                 while ( $the_query->have_posts() ) {
                     $the_query->the_post();
@@ -207,7 +210,7 @@ function dbb_beer_review_search($atts = null) {
                 $output .= esc_html( __(
                     'Sorry, no posts matched your criteria.') );
             }
-        
+            $output .= "</div>\n";
 
         }
 
@@ -227,7 +230,7 @@ function dbb_beer_review_search_form() {
     global $numeric_fields;
 
     $form_output = "
-        <div class='dingsbeerblog_beer_search'>
+        <div class='dbb_beer_search_form' id='dbb_beer_search_form'>
         <form action='" . $_SERVER['REQUEST_URI'] . "' name='dbb_beer_search' method='POST'>";
 
     
@@ -282,7 +285,7 @@ function display_tax_search_field($tax_name) {
     $full_field_name = 'dbb_beer_search_' . $tax_name;
     $human_field_name = humanize($tax_name);
     
-    $output = "<tr><td><label for='$full_field_name'>$human_field_name</label></td>
+    $output = "<tr><td><label for='$full_field_name' id='{$full_field_name}_label' class='form_label'>$human_field_name</label></td>
     <td colspan='2'><select id='$full_field_name' name='$full_field_name'>
     ";
 
@@ -320,7 +323,7 @@ function display_search_field($field_name, $type = 'text', $add_br = false) {
     $prev_compare_value = $_POST[$compare_name];
 
     $output = "
-        <tr><td><label for='$full_field_name'>$human_field_name</label></td>
+        <tr><td><label for='$full_field_name' id='{$full_field_name}_label' class='form_label'>$human_field_name</label></td>
 
         <td><select id='$compare_name' name='$compare_name'>
     ";
@@ -355,7 +358,7 @@ function display_date_search_field ($field)  {
     $end_date_field = 'dbb_beer_search_' . $field . '_end';
     $prev_end_date = $_POST[$end_date_field];
 
-    $output .= "<tr><td style='vertical-align:top'><label for='$start_date_field'>$human_field_name</label></td>";
+    $output .= "<tr><td style='vertical-align:top'><label for='$start_date_field' id='{$start_date_field}_label' class='form_label'>$human_field_name</label></td>";
 
     $output .= "<td>From<br/><input type='text' id='$start_date_field' name='$start_date_field' value='$prev_start_date' /></td>";
     $output .= "<td>To<br/> <input type='text' id='$end_date_field' name='$end_date_field' value='$prev_end_date' /></td></tr>";
