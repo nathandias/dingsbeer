@@ -60,24 +60,35 @@ Hints:
 - The form labels and inputs have distinct ids and possibly classes. View the page source to see the selectors.
 
 You can use the ids and classes to select various elements of the page for css styling. One easy place to add the custom css styles
-is the WordPress Theme Customizer. Here are some examples:
+is the WordPress Theme Customizer.
 
-# bold all the form labels
-div#dbb_beer_search_form .form_label {
-        font-weight:bold;
-}
-
-# color only the beer_review label blue
-div#dbb_beer_search_form #dbb_beer_search_beer_name_label {
-        color: blue;
-}
-
-# indent the search reults
-div#dbb_beer_search_results ul {
-        margin-left:3em;
-}
+Here are some examples:
 
 
+        # bold all the form labels
+        div#dbb_beer_search_form .form_label {
+                font-weight:bold;
+        }
+
+        # color only the beer_review label blue
+        div#dbb_beer_search_form #dbb_beer_search_beer_name_label {
+                color: blue;
+        }
+
+        # indent the search reults
+        div#dbb_beer_search_results ul {
+                margin-left:3em;
+        }
+
+# Archive / Taxonomy Page Styling
+
+On any of the full archive or taxonomy archive pages (/beer/, /format/\<format-slug\>, /brewery/\<brewery-slug\>, /style/\<style-slug\>),
+WordPress wraps each entry in an <article> tag, which includes 'dingsbeerblog_beer' as class selector. This means that you can target the articles for styling:
+
+        # add padding after each article listing
+        article.dingsbeerblog_beer {
+                padding-bottom: 3em;
+        }
 
 # Child Theme Notes
 - the plugin provides the function dbb_display_beer_review_custom_fields($post_id) to output custom fields for the post
