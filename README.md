@@ -85,11 +85,12 @@ Here are some examples:
                 background-color:green;
                 color:white;
                 border:none;
+                display: block;
                 margin: auto;
+                margin-bottom: 2em;
                 font-size: 1.2em;
                 padding: 1em 1.5em;
                 cursor: pointer;
-                display:block;
         }
 
 # Archive / Taxonomy Page Styling
