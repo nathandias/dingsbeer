@@ -51,6 +51,33 @@ reviews from the Google Sheets data.
 
 4. Save the page and visit permalink. You should see a form for searching and filtering beer reviews.
 
+## Search Page Styling
+You can view the page source of the generated search page to see which page elements have css id and/or class selectors.
+
+Hints:
+- The search form is enclosed in a div with id='dbb_beer_search_form' and class='dbb_beer_search_form'.
+- The search results are enclosed in a div with id='dbb_beer_search_results' and class='dbb_beer_search_results'.
+- The form labels and inputs have distinct ids and possibly classes. View the page source to see the selectors.
+
+You can use the ids and classes to select various elements of the page for css styling. One easy place to add the custom css styles
+is the WordPress Theme Customizer. Here are some examples:
+
+# bold all the form labels
+div#dbb_beer_search_form .form_label {
+        font-weight:bold;
+}
+
+# color only the beer_review label blue
+div#dbb_beer_search_form #dbb_beer_search_beer_name_label {
+        color: blue;
+}
+
+# indent the search reults
+div#dbb_beer_search_results ul {
+        margin-left:3em;
+}
+
+
 
 # Child Theme Notes
 - the plugin provides the function dbb_display_beer_review_custom_fields($post_id) to output custom fields for the post
