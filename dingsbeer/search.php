@@ -20,12 +20,12 @@ function dbb_beer_review_search($atts = null) {
     # generate the search form
     $output .= dbb_beer_review_search_form();
 
-    $tried = ($_POST['tried'] == 'yes');
+    $tried = ($_GET['tried'] == 'yes');
 
     if ($tried) {
 
-        if ( ! isset( $_POST['_dbb_nonce'] ) 
-            || ! wp_verify_nonce( $_POST['_dbb_nonce'], 'dbb_beer_search' ) 
+        if ( ! isset( $_GET['_dbb_nonce'] ) 
+            || ! wp_verify_nonce( $_GET['_dbb_nonce'], 'dbb_beer_search' ) 
         ) {
             error_log("nonce error");
             print 'Sorry, your nonce did not verify.';
@@ -49,7 +49,7 @@ function dbb_beer_review_search($atts = null) {
             $date_query = [];
 
             foreach ($tax_fields as $tax_field) {
-                $search_term = $_POST["dbb_beer_search_${tax_field}"];
+                $search_term = $_GET["dbb_beer_search_${tax_field}"];
                 if ($search_term != "") {
                     array_push($tax_query, array(
                         'taxonomy' => $tax_field,
@@ -60,8 +60,8 @@ function dbb_beer_review_search($atts = null) {
             }
 
             foreach ($text_fields as $text_field) {
-                $search_term = $_POST["dbb_beer_search_${text_field}"];
-                $compare = $_POST["dbb_beer_search_${text_field}_compare"];
+                $search_term = $_GET["dbb_beer_search_${text_field}"];
+                $compare = $_GET["dbb_beer_search_${text_field}_compare"];
 
                 error_log("processing $text_field: (search_term = '$search_term', compare = '$compare'");
 
@@ -86,8 +86,8 @@ function dbb_beer_review_search($atts = null) {
             }
 
             foreach ($numeric_fields as $numeric_field) {
-                $search_term = $_POST["dbb_beer_search_${numeric_field}"];
-                $compare = $_POST["dbb_beer_search_${numeric_field}_compare"];
+                $search_term = $_GET["dbb_beer_search_${numeric_field}"];
+                $compare = $_GET["dbb_beer_search_${numeric_field}_compare"];
 
                 if ($search_term == "") {
                     continue;
@@ -117,8 +117,8 @@ function dbb_beer_review_search($atts = null) {
                 array_push($meta_query, array( 'key' => $numeric_field, 'value' => $search_term, 'type' => 'numeric', 'compare' => $compare_operator));
             }
 
-            $start_date = $_POST['dbb_beer_search_review_date_start'];
-            $end_date = $_POST['dbb_beer_search_review_date_end'];
+            $start_date = $_GET['dbb_beer_search_review_date_start'];
+            $end_date = $_GET['dbb_beer_search_review_date_end'];
 
             error_log("start_date = $start_date");
             error_log("end_date = $end_date");
@@ -155,10 +155,10 @@ function dbb_beer_review_search($atts = null) {
                 'meta_query' => $meta_query,
                 'tax_query'=> $tax_query,
                 'date_query' => $date_query,
-                'title_search_term' => $_POST['dbb_beer_search_beer_name'],
-                'title_search_compare' => $_POST['dbb_beer_search_beer_name_compare'],
-                'content_search_term' => $_POST['dbb_beer_search_notes'],
-                'content_search_compare' => $_POST['dbb_beer_search_notes_compare'],
+                'title_search_term' => $_GET['dbb_beer_search_beer_name'],
+                'title_search_compare' => $_GET['dbb_beer_search_beer_name_compare'],
+                'content_search_term' => $_GET['dbb_beer_search_notes'],
+                'content_search_compare' => $_GET['dbb_beer_search_notes_compare'],
             );
             
             error_log($meta_query);
@@ -187,23 +187,37 @@ function dbb_beer_review_search($atts = null) {
 
                 $output .= '<div class="pagination">';
 
-                $output .= paginate_links( array(
-                    'base'         => str_replace( 999999999, '%#%', esc_url( get_pagenum_link( 999999999 ) ) ),
-                    'total'        => $the_query->max_num_pages,
-                    'current'      => max( 1, get_query_var( 'paged' ) ),
-                    'format'       => '?paged=%#%',
-                    'show_all'     => false,
-                    'type'         => 'plain',
-                    'end_size'     => 2,
-                    'mid_size'     => 1,
-                    'prev_next'    => true,
-                    'prev_text'    => sprintf( '<i></i> %1$s', __( 'Previous', 'text-domain' ) ),
-                    'next_text'    => sprintf( '%1$s <i></i>', __( 'Next', 'text-domain' ) ),
-                    'add_args'     => false,
-                    'add_fragment' => '',
-                ) );
 
-                // $output .= '</div>\n';
+                $big = 999999999; // need an unlikely integer
+                $output .= paginate_links(
+                    array(
+                        'base' => str_replace($big, '%#%', esc_url(get_pagenum_link($big))),
+                        'format' => '?paged=%#%',
+                        'current' => max(
+                            1,
+                            get_query_var('paged')
+                        ),
+                        'total' => $the_query->max_num_pages //$q is your custom query
+                    )
+                );
+              
+                // $output .= paginate_links( array(
+                //     'base'         => str_replace( 999999999, '%#%', esc_url( get_pagenum_link( 999999999 ) ) ),
+                //     'total'        => $the_query->max_num_pages,
+                //     'current'      => max( 1, get_query_var( 'paged' ) ),
+                //     'format'       => '?paged=%#%',
+                //     'show_all'     => false,
+                //     'type'         => 'plain',
+                //     'end_size'     => 2,
+                //     'mid_size'     => 1,
+                //     'prev_next'    => true,
+                //     'prev_text'    => sprintf( '<i></i> %1$s', __( 'Previous', 'text-domain' ) ),
+                //     'next_text'    => sprintf( '%1$s <i></i>', __( 'Next', 'text-domain' ) ),
+                //     'add_args'     => false,
+                //     'add_fragment' => '',
+                // ) );
+
+                $output .= "</div>\n";
 
                 wp_reset_postdata();
             } else {
@@ -231,7 +245,7 @@ function dbb_beer_review_search_form() {
 
     $form_output = "
         <div class='dbb_beer_search_form' id='dbb_beer_search_form'>
-        <form action='" . $_SERVER['REQUEST_URI'] . "' name='dbb_beer_search' method='POST'>";
+        <form action='" . $_SERVER['REQUEST_URI'] . "' name='dbb_beer_search' method='GET'>";
 
     
     $form_output .= wp_nonce_field( 'dbb_beer_search', '_dbb_nonce', true, false );
@@ -289,7 +303,7 @@ function display_tax_search_field($tax_name) {
     <td colspan='2'><select id='$full_field_name' name='$full_field_name'>
     ";
 
-    $selected = ($_POST[$full_field_name] == '') ? 'selected' : '';
+    $selected = ($_GET[$full_field_name] == '') ? 'selected' : '';
 
     $output .= "<option value='' $selected>*show all*</option>";
 
@@ -303,7 +317,7 @@ function display_tax_search_field($tax_name) {
     $the_query = new WP_Term_Query($args);
     foreach($the_query->get_terms() as $term){ 
         $term_name = $term->name;
-        $selected = ($_POST[$full_field_name] == $term_name) ? 'selected' : '';
+        $selected = ($_GET[$full_field_name] == $term_name) ? 'selected' : '';
         $output .= "<option value='$term_name' $selected>$term_name</option>";
     }
 
@@ -317,10 +331,10 @@ function display_search_field($field_name, $type = 'text', $add_br = false) {
 
     $full_field_name = 'dbb_beer_search_' . $field_name;
     $human_field_name = humanize($field_name);
-    $prev_field_value = $_POST[$full_field_name];
+    $prev_field_value = $_GET[$full_field_name];
 
     $compare_name = $full_field_name . "_compare";
-    $prev_compare_value = $_POST[$compare_name];
+    $prev_compare_value = $_GET[$compare_name];
 
     $output = "
         <tr><td><label for='$full_field_name' id='{$full_field_name}_label' class='form_label'>$human_field_name</label></td>
@@ -354,9 +368,9 @@ function display_date_search_field ($field)  {
 
     $human_field_name = humanize($field);
     $start_date_field = 'dbb_beer_search_' . $field . '_start';
-    $prev_start_date = $_POST[$start_date_field];
+    $prev_start_date = $_GET[$start_date_field];
     $end_date_field = 'dbb_beer_search_' . $field . '_end';
-    $prev_end_date = $_POST[$end_date_field];
+    $prev_end_date = $_GET[$end_date_field];
 
     $output .= "<tr><td style='vertical-align:top'><label for='$start_date_field' id='{$start_date_field}_label' class='form_label'>$human_field_name</label></td>";
 
@@ -443,7 +457,7 @@ function dbb_beer_search_validate_form () {
 
     foreach ($short_text_fields as $text_field) {
         $actual_text_field = 'dbb_beer_search_' . $text_field;
-        $value = $_POST[$actual_text_field];
+        $value = $_GET[$actual_text_field];
         if (strlen($value) > 256) {
             array_push($validation_errors, humanize($text_field) . " is too long (must be less than 256 characters)");
         }
@@ -453,7 +467,7 @@ function dbb_beer_search_validate_form () {
 
     foreach ($numeric_fields as $numeric_field) {
         $actual_numeric_field = 'dbb_beer_search_' . $numeric_field;
-        $value = $_POST[$actual_numeric_field];
+        $value = $_GET[$actual_numeric_field];
 
         error_log("\$numeric_field = $numeric_field, \$value = $value");
                 
@@ -472,7 +486,7 @@ function dbb_beer_search_validate_form () {
     $date_fields = array('review_date_start', 'review_date_end');
     foreach ($date_fields as $date_field) {
         $actual_date_field = 'dbb_beer_search_' . $date_field;
-        $value = $_POST[$actual_date_field];
+        $value = $_GET[$actual_date_field];
 
         error_log("\$date_field = $date_field, \$value = $value");
 
@@ -486,10 +500,10 @@ function dbb_beer_search_validate_form () {
 
     error_log("\$both_dates_valid == $both_dates_valid");
     # start of review date search range must occur before end, if both start and end specified
-    if ($both_dates_valid && ($_POST[$start_date_fn] != '') && ($_POST[$end_date_fn] != '')) {
+    if ($both_dates_valid && ($_GET[$start_date_fn] != '') && ($_GET[$end_date_fn] != '')) {
 
-        $start_date = DateTime::createFromFormat('n-j-Y', $_POST[$start_date_fn]);
-        $end_date = DateTime::createFromFormat('n-j-Y', $_POST[$end_date_fn]);
+        $start_date = DateTime::createFromFormat('n-j-Y', $_GET[$start_date_fn]);
+        $end_date = DateTime::createFromFormat('n-j-Y', $_GET[$end_date_fn]);
 
         error_log("\$start_date (validating) = " . $start_date->format('n-j-Y'));
         error_log("\$end_date (validating) = " . $end_date->format('n-j-Y'));
