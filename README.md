@@ -80,6 +80,18 @@ Here are some examples:
                 margin-left:3em;
         }
 
+        # style the search submit button
+        div#dbb_beer_search_form input[type=submit]  {
+                background-color:green;
+                color:white;
+                border:none;
+                margin: auto;
+                font-size: 1.2em;
+                padding: 1em 1.5em;
+                cursor: pointer;
+                display:block;
+        }
+
 # Archive / Taxonomy Page Styling
 
 On any of the full archive or taxonomy archive pages (/beer/, /format/\<format-slug\>, /brewery/\<brewery-slug\>, /style/\<style-slug\>),

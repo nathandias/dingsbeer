@@ -268,7 +268,7 @@ function dbb_beer_review_search_form() {
 
         <input type="hidden" name="tried" value="yes" />
 
-        <div style="text-align:right"><input id="submit" type="submit" value="Search" /></div>
+        <input id="submit" type="submit" value="Search" />
 
         </form></div>';
 
