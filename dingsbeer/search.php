@@ -243,6 +243,8 @@ function dbb_beer_review_search_form() {
     global $text_fields;
     global $numeric_fields;
 
+    wp_enqueue_style('dbb_style', '/wp-content/plugins/dingsbeer/css/style.css');
+
     $form_output = "
         <div class='dbb_beer_search_form' id='dbb_beer_search_form'>
         <form action='" . $_SERVER['REQUEST_URI'] . "' name='dbb_beer_search' method='GET'>";
@@ -252,11 +254,11 @@ function dbb_beer_review_search_form() {
 
     error_log("post nonce");
 
-    $form_output .= "
-        <table>
-        <tbody>
-        <tr><th colspan='3' id='search_by' style='text-align:left'><label for='search_by'>Search by:</label></th></tr>
-    ";
+    // $form_output .= "
+    //     <table>
+    //     <tbody>
+    //     <tr><th colspan='3' id='search_by' style='text-align:left'><label for='search_by'>Search by:</label></th></tr>
+    // ";
     
     foreach ($post_fields as $field) {
         $form_output .= display_search_field($field, 'text');
@@ -276,20 +278,19 @@ function dbb_beer_review_search_form() {
 
     $form_output .= display_date_search_field('review_date');
 
-    $form_output .= '
-        </tbody>
-        </table>
+    // $form_output .= '
+    //     </tbody>
+    //     </table>
+    // ';
 
+    $form_output .= <<< HTML
         <input type="hidden" name="tried" value="yes" />
-
         <input id="submit" type="submit" value="Search" />
-
-        </form></div>';
+        </form></div>
+    HTML;
 
     return $form_output;
 }
-
-
 
 function humanize($text) {
     return ucwords(str_replace("_", " ", $text));
@@ -298,10 +299,15 @@ function humanize($text) {
 function display_tax_search_field($tax_name) {
     $full_field_name = 'dbb_beer_search_' . $tax_name;
     $human_field_name = humanize($tax_name);
-    
-    $output = "<tr><td><label for='$full_field_name' id='{$full_field_name}_label' class='form_label'>$human_field_name</label></td>
-    <td colspan='2'><select id='$full_field_name' name='$full_field_name'>
-    ";
+
+    $output .= <<<HTML
+        <div class="row">
+            <div class='col-1'>
+                <label for='{$full_field_name}' id='{$full_field_name}_label' class='form_label'>{$human_field_name}</label>
+            </div>
+            <div class='col-2-3'>
+                <select id='{$full_field_name}' name='{$full_field_name}'>
+    HTML;
 
     $selected = ($_GET[$full_field_name] == '') ? 'selected' : '';
 
@@ -321,7 +327,11 @@ function display_tax_search_field($tax_name) {
         $output .= "<option value='$term_name' $selected>$term_name</option>";
     }
 
-    $output .= "</select></td></tr>\n";
+    $output .= <<<HTML
+                </select>
+            </div>
+        </div>
+    HTML;
 
     return $output;
 
@@ -336,12 +346,16 @@ function display_search_field($field_name, $type = 'text', $add_br = false) {
     $compare_name = $full_field_name . "_compare";
     $prev_compare_value = $_GET[$compare_name];
 
-    $output = "
-        <tr><td><label for='$full_field_name' id='{$full_field_name}_label' class='form_label'>$human_field_name</label></td>
+    $output .= <<<HTML
+        <div class="row">
+            <div class="col-1">
+                <label for='{$full_field_name}' id='{$full_field_name_label}' class='form_label'>{$human_field_name}</label>
+            </div>
+            <div class="col-2">
+                <select name='{$compare_name}' id='{$compare_name}'>
+    HTML;
 
-        <td><select id='$compare_name' name='$compare_name'>
-    ";
-
+    // insert the options
     $options = ['contains', 'is', 'is_not']; // default text field comparison options
     if ($type == 'numeric') {
         $options = ['equals', 'does_not_equal', 'less_than', 'less_than_or_equal', 'greater_than', 'greater_than_or_equal'];
@@ -351,14 +365,17 @@ function display_search_field($field_name, $type = 'text', $add_br = false) {
         $human_option = humanize($option);
         $selected = ($option === $prev_compare_value) ? 'selected' : '';
         
-        $output .= "<option value='$option' $selected>$human_option</option>";
+        $output .= "<option value='$option' $selected>$human_option</option>\n";
     }
-    
-    $output .= "</select></td>";
 
-    $output .= "<td><input id='$full_field_name' name='$full_field_name' type='text' value='$prev_field_value'/></td>";
-
-    $output .= "</tr>\n";
+    $output .= <<<HTML
+                </select>
+            </div>
+            <div class="col-3">
+                <input type="text" id='{$full_field_name}' name='{$full_field_name}' value='{$prev_field_value}'>
+            </div>
+        </div>
+    HTML;
 
     return $output;
 
@@ -372,10 +389,21 @@ function display_date_search_field ($field)  {
     $end_date_field = 'dbb_beer_search_' . $field . '_end';
     $prev_end_date = $_GET[$end_date_field];
 
-    $output .= "<tr><td style='vertical-align:top'><label for='$start_date_field' id='{$start_date_field}_label' class='form_label'>$human_field_name</label></td>";
-
-    $output .= "<td>From<br/><input type='text' id='$start_date_field' name='$start_date_field' value='$prev_start_date' /></td>";
-    $output .= "<td>To<br/> <input type='text' id='$end_date_field' name='$end_date_field' value='$prev_end_date' /></td></tr>";
+    $output .= <<<HTML
+        <div class="row">
+            <div class='col-1'>
+                <label for='{$start_date_field}' id='{$start_date_field}_label' class='form_label'>{$human_field_name}</label>
+            </div>
+            <div class='col-2-split'>
+                From<br/>
+                <input type='text' id='{$start_date_field}' name='{$start_date_field}' value='{$prev_start_date}' />
+            </div>
+            <div class='col-2-split'>
+                To<br/>
+                <input type='text' id='$end_date_field' name='$end_date_field' value='$prev_end_date' />
+            </div>
+        </div>
+    HTML;
 
     return $output;
 
