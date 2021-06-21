@@ -6,17 +6,12 @@
 add_shortcode('beer_review_search','dbb_beer_search');
 
 # Global Variables
-// $post_fields = ['beer_name', 'notes']; # the custom post type title and content fields
-// $tax_fields = ['brewery', 'style', 'format'];
-// $text_fields = ['series_name'];
-// $numeric_fields = ['year', 'abv', 'appearance', 'smell', 'taste', 'mouthfeel', 'overall'];
+$post_fields = ['beer_name', 'notes']; # the custom post type title and content fields
+$tax_fields = ['brewery', 'style', 'format'];
+$text_fields = ['series_name'];
+$numeric_fields = ['year', 'abv', 'appearance', 'smell', 'taste', 'mouthfeel', 'overall'];
 
 $dbb_prefix;
-
-$post_fields = ['beer_name'];
-$tax_fields = [];
-$numeric_fields = ['abv'];
-$text_fields = [];  
 
 function dbb_beer_search($atts = null) {
 
