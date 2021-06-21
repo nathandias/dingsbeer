@@ -1,7 +1,7 @@
 /* CSS stylesheet for a responsive search form */
 
 /* Style inputs, select elements and textareas */
- input[type=text], select, textarea{
+ #dbb_search_form input[type=text], select, textarea{
     width: 100%;
     padding: 12px;
     border: 1px solid #ccc;
@@ -11,27 +11,27 @@
   }
   
   /* Style the label to display next to the inputs */
-  label {
+  #dbb_search_form label {
     padding: 12px 12px 12px 0;
     display: inline-block;
   }
    
   /* Style the container */
-  .container {
+  #dbb_search_form .container {
     border-radius: 5px;
     background-color: #f2f2f2;
     padding: 20px;
   }
   
   /* Floating column for labels: 30% width */
-  .col-1 {
+  #dbb_search_form .col-1 {
     float: left;
     width: 25%;
     margin-top: 6px;
   }
   
   /* Floating column for inputs: 20% width */
-  .col-2 {
+  #dbb_search_form .col-2 {
     float: left;
     width: 20%;
     margin-top: 6px;
@@ -39,21 +39,21 @@
   }
 
   /* Floating column for inputs: 55% width */
-  .col-3 {
+  #dbb_search_form .col-3 {
       float: left;
       width: 55%;
       margin-top: 6px;
       padding-right: 6px;
   }
     /* Floating column for inputs: 75% width */
-.col-2-3 {
+#dbb_search_form .col-2-3 {
     float: left;
     width: 75%;
     margin-top: 6px;
     padding-right: 6px;
 }
 
-.col-2-split {
+#dbb_search_form .col-2-split {
     float: left;
     width: 37.5%;
     margin-top: 6px;
@@ -62,16 +62,21 @@
 }
 
   /* Clear floats after the columns */
-    .row:after {
+#dbb_search_form  .row:after {
         content: "";
         display: table;
         clear: both;
     }
   
   /* Responsive layout - when the screen is less than 600px wide, make the two columns stack on top of each other instead of next to each other */
-  @media screen and (max-width: 600px) {
-    .col-1, .col-2, .col-3, .col-2-3, input[type=submit] {
+@media screen and (max-width: 600px) {
+#dbb_search_form .col-1,
+#dbb_search_form .col-2,
+#dbb_search_form .col-3,
+#dbb_search_form .col-2-3,
+#dbb_search_form .col-2-split,
+#dbb_search_form input[type=submit] {
       width: 100%;
-      margin-top: 0;
+      margin-top: 2px;
     }
-  } 
+}
