@@ -66,22 +66,22 @@ Here are some examples:
 
 
         # bold all the form labels
-        div#dbb_beer_search_form .form_label {
+        div#dbb_search_form .form_label {
                 font-weight:bold;
         }
 
         # color only the beer_review label blue
-        div#dbb_beer_search_form #dbb_beer_search_beer_name_label {
+        div#dbb_search_form #dbb_beer_search_beer_name_label {
                 color: blue;
         }
 
         # indent the search reults
-        div#dbb_beer_search_results ul {
+        div#dbb_search_results ul {
                 margin-left:3em;
         }
 
         # style the search submit button
-        div#dbb_beer_search_form input[type=submit]  {
+        div#dbb_search_form input[type=submit]  {
                 background-color:green;
                 color:white;
                 border:none;
