@@ -78,20 +78,12 @@ function dbb_beer_search($atts = null) {
                     continue;
                 }
 
-                switch ($compare) {
-                    case 'is':
-                        $compare_operator = '=';
-                        break;
-                    case 'is_not':
-                        $compare_operator = '!=';
-                        break;
-                    case 'contains':
-                        $compare_operator = "LIKE";
-                        break;
-                    default:
-                        die("invalid comparison operator for field $text_field");
-                }
-                array_push($meta_query, array( 'key' => $text_field, 'value' => $search_term, 'compare' => $compare_operator));
+                $compare_operator = convert_compare_operator($compare, 'text');
+                array_push($meta_query, array(
+                    'key' => $text_field,
+                    'value' => $search_term,
+                    'compare' => $compare_operator
+                ));
             }
 
             foreach ($numeric_fields as $numeric_field) {
@@ -101,29 +93,14 @@ function dbb_beer_search($atts = null) {
                 if ($search_term == "") {
                     continue;
                 }
-                switch ($compare) {
-                    case 'equals':
-                        $compare_operator = '=';
-                        break;
-                    case 'does_not_equal':
-                        $compare_operator = '!=';
-                        break;
-                    case 'less_than':
-                        $compare_operator = '<';
-                        break;
-                    case 'less_than_or_equal':
-                        $compare_operator = '<=';
-                        break;
-                    case 'greater_than':
-                        $compare_operator = '>';
-                        break;
-                    case 'greater_than_or_equal':
-                        $compare_operator = '>=';
-                        break;
-                    default:
-                        die("invalid comparison operator for field $numeric_field");
-                }
-                array_push($meta_query, array( 'key' => $numeric_field, 'value' => $search_term, 'type' => 'numeric', 'compare' => $compare_operator));
+
+                $compare_operator = convert_compare_operator($compare, 'numeric');
+                array_push($meta_query, array(
+                    'key' => $numeric_field,
+                    'value' => $search_term,
+                    'type' => 'numeric',
+                    'compare' => $compare_operator
+                ));
             }
 
             $start_date = $_GET[$dbb_prefix . "review_date_start"];
@@ -557,4 +534,55 @@ function dbb_validate_form () {
 function validateDate($date, $format = 'n-j-Y') {
     $d = DateTime::createFromFormat($format, $date);
     return $d && $d->format($format) == $date;
+}
+
+function convert_compare_operator($compare, $type = 'text') {
+
+    # convert a human readable comparison operator to one for use in database query
+    
+    if ($type == 'numeric') {
+
+        switch ($compare) {
+            case 'equals':
+                $compare_operator = '=';
+                break;
+            case 'does_not_equal':
+                $compare_operator = '!=';
+                break;
+            case 'less_than':
+                $compare_operator = '<';
+                break;
+            case 'less_than_or_equal':
+                $compare_operator = '<=';
+                break;
+            case 'greater_than':
+                $compare_operator = '>';
+                break;
+            case 'greater_than_or_equal':
+                $compare_operator = '>=';
+                break;
+            default:
+                die("invalid comparison operator for field $numeric_field");
+        }
+
+    } elseif ($type == 'text') {
+        switch ($compare) {
+            case 'is':
+                $compare_operator = '=';
+                break;
+            case 'is_not':
+                $compare_operator = '!=';
+                break;
+            case 'contains':
+                $compare_operator = "LIKE";
+                break;
+            default:
+                die("invalid comparison operator for field $text_field");
+        }
+    } else {
+        die("invalid type $type parameter specified");
+    }
+
+    return $compare_operator;
+
 }
