@@ -124,7 +124,7 @@ function dbb_beer_search($atts = null) {
                 $date_query = array($date_range, 'inclusive' => true);
             }
 
-            $paged = ( get_query_var( 'paged' ) ) ? get_query_var( 'paged' ) : 1;
+            $paged = ( get_query_var( 'paged', 1 ) );
             
             # MySQL escaping notes
             #
@@ -221,6 +221,9 @@ function dbb_search_form() {
     global $numeric_fields;
 
     wp_enqueue_style('dbb_style', '/wp-content/plugins/dingsbeer/css/style.css');
+
+    $_SERVER['REQUEST_URI'] = remove_query_arg( '_wp_http_referer', $_SERVER['REQUEST_URI'] );
+    $_SERVER['REQUEST_URI'] = preg_replace('/page\/(\d+)\//', '', $_SERVER['REQUEST_URI']);
 
     $form_output = "
         <div class='dbb_search_form' id='dbb_search_form'>
