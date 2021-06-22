@@ -11,7 +11,7 @@ $tax_fields = ['brewery', 'style', 'format'];
 $text_fields = ['series_name'];
 $numeric_fields = ['year', 'abv', 'appearance', 'smell', 'taste', 'mouthfeel', 'overall'];
 
-$dbb_prefix;
+$dbb_prefix = 'dbb_';
 
 function dbb_beer_search($atts = null) {
 
@@ -31,13 +31,11 @@ function dbb_beer_search($atts = null) {
         if ( ! isset( $_GET['_dbb_nonce'] ) 
             || ! wp_verify_nonce( $_GET['_dbb_nonce'], 'dbb_beer_search' ) 
         ) {
-            error_log("nonce error");
+            // error_log("nonce error");
             print 'Sorry, your nonce did not verify.';
             exit;
         } else {
             # passed the nonce verification, proceed
-
-
 
             # validate the submitted form data
             if ($validation_errors = dbb_validate_form()) {
@@ -67,7 +65,7 @@ function dbb_beer_search($atts = null) {
                 $search_term = $_GET[$dbb_prefix . $text_field];
                 $compare = $_GET[$dbb_prefix . "{$text_field}_compare"];
 
-                error_log("processing $text_field: (search_term = '$search_term', compare = '$compare'");
+                // error_log("processing $text_field: (search_term = '$search_term', compare = '$compare'");
 
                 if ($search_term == "") {
                     continue;
@@ -108,11 +106,11 @@ function dbb_beer_search($atts = null) {
             $date_query = [];
             $date_range = [];
             if ($start_date != '') {
-                $start_date = DateTime::createFromFormat('n-j-Y', $start_date)->format('Y-m-d');
+                $start_date = DateTime::createFromFormat('n#j#Y', $start_date)->format('Y-m-d');
                 $date_range['after'] = $start_date;
             }
             if ($end_date != '') {
-                $end_date = DateTime::createFromFormat('n-j-Y', $end_date)->format('Y-m-d');
+                $end_date = DateTime::createFromFormat('n#j#Y', $end_date)->format('Y-m-d');
                 $date_range['before'] = $end_date;
             }
             if ($start_date != '' || $end_date != '') {
@@ -132,11 +130,11 @@ function dbb_beer_search($atts = null) {
             $title_search_term = $_GET[$dbb_prefix . 'beer_name'];
             $title_search_compare = $_GET[$dbb_prefix . 'beer_name_compare'];
 
-            error_log("looking for GET value: : {$dbb_prefix}beer_name");
-            error_log("GET array value = " . $_GET[$dbb_prefix . 'beer_name']);
+            // error_log("looking for GET value: : {$dbb_prefix}beer_name");
+            // error_log("GET array value = " . $_GET[$dbb_prefix . 'beer_name']);
 
-            error_log("title_search_(outside): $title_search");
-            error_log("title_search_compare(outside): $title_search_compare");
+            // error_log("title_search_(outside): $title_search");
+            // error_log("title_search_compare(outside): $title_search_compare");
 
             $args = array(
                 'post_type' => 'dingsbeerblog_beer',
@@ -367,11 +365,11 @@ function display_date_search_field ($field)  {
             </div>
             <div class='col-2-split'>
                 From<br/>
-                <input type='text' id='{$start_date_field}' name='{$start_date_field}' value='{$prev_start_date}' />
+                <input type='text' id='{$start_date_field}' name='{$start_date_field}' value='{$prev_start_date}' placeholder='format: MM-DD-YYYY'/>
             </div>
             <div class='col-2-split'>
                 To<br/>
-                <input type='text' id='$end_date_field' name='$end_date_field' value='$prev_end_date' />
+                <input type='text' id='$end_date_field' name='$end_date_field' value='$prev_end_date' placeholder='format: MM-DD-YYYY'/>
             </div>
         </div>
     HTML;
@@ -384,13 +382,13 @@ function display_date_search_field ($field)  {
 function dbb_beer_title_filter($where, $wp_query) {
     global $wpdb;
 
-    error_log("called dbb_beer_title_filter");
-    error_log("title_search_term: " . $wp_query->query['title_search_term']);
+    // error_log("called dbb_beer_title_filter");
+    // error_log("title_search_term: " . $wp_query->query['title_search_term']);
 
     if ($search_term = $wp_query->query['title_search_term']) {
         $compare = $wp_query->query['title_search_compare'];
 
-        error_log("compare = $compare");
+        // error_log("compare = $compare");
 
         switch ($compare) {
             case 'contains':
@@ -404,8 +402,8 @@ function dbb_beer_title_filter($where, $wp_query) {
                 break;
             }
     }
-    error_log("search term: $search_term");
-    error_log("where = $where");
+    // error_log("search term: $search_term");
+    // error_log("where = $where");
     
 
 
@@ -450,6 +448,8 @@ function dbb_validate_form () {
     # -or- boolean false if no errors found
     # 
 
+    global $dbb_prefix;
+
     $validation_errors = [];
 
     $short_text_fields = array('beer_name', 'brewery_name', 'format', 'style', 'series_name');
@@ -468,7 +468,7 @@ function dbb_validate_form () {
         $actual_numeric_field = 'dbb_' . $numeric_field;
         $value = $_GET[$actual_numeric_field];
 
-        error_log("\$numeric_field = $numeric_field, \$value = $value");
+        // error_log("\$numeric_field = $numeric_field, \$value = $value");
                 
         if (is_numeric($value) || $value == '') {
 
@@ -478,8 +478,8 @@ function dbb_validate_form () {
     }
 
     # the field names
-    $start_date_fn = 'dbb_review_date_start';
-    $end_date_fn = 'dbb_review_date_end';
+    $start_date_fn = $dbb_prefix . 'review_date_start';
+    $end_date_fn = $dbb_prefix . 'review_date_end';
     
     $both_dates_valid = true;
     $date_fields = array('review_date_start', 'review_date_end');
@@ -488,7 +488,6 @@ function dbb_validate_form () {
         $value = $_GET[$actual_date_field];
 
         error_log("\$date_field = $date_field, \$value = $value");
-
 
         if (validateDate($value) || $value == '') {
         } else {
@@ -501,8 +500,8 @@ function dbb_validate_form () {
     # start of review date search range must occur before end, if both start and end specified
     if ($both_dates_valid && ($_GET[$start_date_fn] != '') && ($_GET[$end_date_fn] != '')) {
 
-        $start_date = DateTime::createFromFormat('n-j-Y', $_GET[$start_date_fn]);
-        $end_date = DateTime::createFromFormat('n-j-Y', $_GET[$end_date_fn]);
+        $start_date = DateTime::createFromFormat('n#j#Y', $_GET[$start_date_fn]);
+        $end_date = DateTime::createFromFormat('n#j#Y', $_GET[$end_date_fn]);
 
         error_log("\$start_date (validating) = " . $start_date->format('n-j-Y'));
         error_log("\$end_date (validating) = " . $end_date->format('n-j-Y'));
@@ -513,24 +512,34 @@ function dbb_validate_form () {
     }
 
 
-
-
-
     if ($validation_errors) {
-        $output = "<strong style='color:red'>Invalid search terms. Please fix these problems.</strong>\n";
-        $output .= "<ul>\n";
+        $output = <<<HTML
+            <strong style='color:red'>Invalid search terms. Please fix these problems.</strong>
+            <ul>
+        HTML;
+
         foreach ($validation_errors as $validation_error) {
             $output .= "<li>$validation_error</li>\n";
         }
         $output .= "</ul>\n";
+
         return $output;
     } else {
         return false; # passed validation, no errors returned
     }
 }
 
-function validateDate($date, $format = 'n-j-Y') {
+function validateDate($date, $format = 'm-d-Y') {
     $d = DateTime::createFromFormat($format, $date);
+
+    // // $formatted = $d->format($format);
+    
+    // // $format_test = $formatted == $date;
+
+    // error_log(var_export($d, true));
+    // error_log(var_export($formatted, true));
+    // error_log(var_export($format_test, true));
+
     return $d && $d->format($format) == $date;
 }
 
