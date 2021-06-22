@@ -39,11 +39,11 @@ function dbb_beer_search($atts = null) {
 
 
 
-            // # validate the submitted form data
-            // if ($validation_errors = dbb_validate_form()) {
-            //     $output .= $validation_errors;
-            //     return  __( $output );
-            // }
+            # validate the submitted form data
+            if ($validation_errors = dbb_validate_form()) {
+                $output .= $validation_errors;
+                return  __( $output );
+            }
 
             # build the query
             $args = array('post_type' => 'dingsbeerblog_beer');
