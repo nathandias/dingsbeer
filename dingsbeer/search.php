@@ -450,7 +450,7 @@ function dbb_validate_form () {
         }
     }
 
-    $numeric_fields = array('abv', 'appearance', 'taste', 'smell', 'mouthfeel', 'overall');
+    $numeric_fields = array('year', 'abv', 'appearance', 'taste', 'smell', 'mouthfeel', 'overall');
 
     foreach ($numeric_fields as $numeric_field) {
         $actual_numeric_field = 'dbb_' . $numeric_field;
