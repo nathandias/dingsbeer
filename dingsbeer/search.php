@@ -96,21 +96,21 @@ function dbb_beer_search($atts = null) {
                 ));
             }
 
+
+            # by this point, the dates have already been validated, so safe to convert non-'' values
+            # to Y-m-d format
+
             $start_date = $_GET[$dbb_prefix . "review_date_start"];
             $end_date = $_GET[$dbb_prefix . "review_date_end"];
-
-            error_log("start_date = $start_date");
-            error_log("end_date = $end_date");
-
 
             $date_query = [];
             $date_range = [];
             if ($start_date != '') {
-                $start_date = DateTime::createFromFormat('n#j#Y', $start_date)->format('Y-m-d');
+                $start_date = validateDate($start_date)->format('Y-m-d');
                 $date_range['after'] = $start_date;
             }
             if ($end_date != '') {
-                $end_date = DateTime::createFromFormat('n#j#Y', $end_date)->format('Y-m-d');
+                $end_date = validateDate($end_date)->format('Y-m-d');
                 $date_range['before'] = $end_date;
             }
             if ($start_date != '' || $end_date != '') {
@@ -350,6 +350,8 @@ function display_date_search_field ($field)  {
 
     global $dbb_prefix;
 
+    $date_placeholder = 'MM-DD-YYYY';
+
     $human_field_name = humanize($field);
     
     $start_date_field = $dbb_prefix . "{$field}_start";    
@@ -365,11 +367,11 @@ function display_date_search_field ($field)  {
             </div>
             <div class='col-2-split'>
                 From<br/>
-                <input type='text' id='{$start_date_field}' name='{$start_date_field}' value='{$prev_start_date}' placeholder='format: MM-DD-YYYY'/>
+                <input type='text' id='{$start_date_field}' name='{$start_date_field}' value='{$prev_start_date}' placeholder='{$date_placeholder}'/>
             </div>
             <div class='col-2-split'>
                 To<br/>
-                <input type='text' id='$end_date_field' name='$end_date_field' value='$prev_end_date' placeholder='format: MM-DD-YYYY'/>
+                <input type='text' id='$end_date_field' name='$end_date_field' value='$prev_end_date' placeholder='{$date_placeholder}'/>
             </div>
         </div>
     HTML;
@@ -382,13 +384,8 @@ function display_date_search_field ($field)  {
 function dbb_beer_title_filter($where, $wp_query) {
     global $wpdb;
 
-    // error_log("called dbb_beer_title_filter");
-    // error_log("title_search_term: " . $wp_query->query['title_search_term']);
-
     if ($search_term = $wp_query->query['title_search_term']) {
         $compare = $wp_query->query['title_search_compare'];
-
-        // error_log("compare = $compare");
 
         switch ($compare) {
             case 'contains':
@@ -402,10 +399,6 @@ function dbb_beer_title_filter($where, $wp_query) {
                 break;
             }
     }
-    // error_log("search term: $search_term");
-    // error_log("where = $where");
-    
-
 
     return $where;
 }
@@ -414,9 +407,6 @@ function dbb_beer_content_filter($where, $wp_query) {
     global $wpdb;
 
     // the post content corresponds to the "Notes" field of the beer review
-
-    error_log("called dbb_beer_content_filter");
-    error_log("content_search_term: " . $wp_query->query['content_search_term']);
 
     if ($search_term = $wp_query->query['content_search_term']) {
         $compare = $wp_query->query['content_search_compare'];
@@ -435,8 +425,6 @@ function dbb_beer_content_filter($where, $wp_query) {
                 break;
             }
     }
-    error_log("search term: $search_term");
-    error_log("where = $where");
     
     return $where;
 }
@@ -477,38 +465,53 @@ function dbb_validate_form () {
         }
     }
 
-    # the field names
-    $start_date_fn = $dbb_prefix . 'review_date_start';
-    $end_date_fn = $dbb_prefix . 'review_date_end';
+    # verify that dbb_review_date_start and dbb_review_date_end are
+    # well formatted dates and that dbb_review_date_start comes before dbb_review_date_end
+  
+    # valid dates look like MM-DD-YYYY
+    # only '/' is accepted as a separator
+    # single digit months and days must be 0 padded
+    # this code does not check whether the dates are valid gregorian dates
+
+    # validate the date fields; these combinations are valid:
+    # start_date    end_date            comment
+    # ----------    --------            -------
+    # blank         blank               date filter unused
+    # blank         valid date          any dates <= end_date
+    # valid date    blank               any dates >= start_date
+    # valid date <= valid date          any dates in the range start_date...end_date, start_date must be <= end_date
+
+    # likewise, these combinations should fail
+    # start_date    end_date            comment
+    # ----------    --------            -------
+    # blank         non-date            (i.e. text, improper formating, not a valid Gregorian date)
+    # non-date      blank               any dates <= end_date
+    # non-date      non-date            any dates >= start_date
+    # valid date > valid date           valid dates supplied, but start_date is after end_date
+
+    # Note: the following code doesn't check for valid gregorian dates...so 31-92-2009 could pass
+
+    # each date_str should be a date in a valid format -OR- ''
+    $start_date_str = $_GET[$dbb_prefix . 'review_date_start'];
+    $end_date_str = $_GET[$dbb_prefix . 'review_date_end'];
     
-    $both_dates_valid = true;
-    $date_fields = array('review_date_start', 'review_date_end');
-    foreach ($date_fields as $date_field) {
-        $actual_date_field = 'dbb_' . $date_field;
-        $value = $_GET[$actual_date_field];
+    $start_date = validateDate($start_date_str);
+    $end_date = validateDate($end_date_str);
 
-        error_log("\$date_field = $date_field, \$value = $value");
-
-        if (validateDate($value) || $value == '') {
-        } else {
-            array_push($validation_errors, humanize($date_field) . " should be a date in MM-DD-YYYY format");
-            $both_dates_valid = false;
-        }
+    $dates_valid = true;
+    if (! $start_date && $start_date_str != '') {
+        array_push($validation_errors, humanize('review_date_start') . " should be a date in MM-DD-YYYY format");
+        $dates_valid = false;
+    }
+    if (! $end_date && $end_date_str != '') {
+        array_push($validation_errors, humanize('review_date_end') . " should be a date in MM-DD-YYYY format");
+        $dates_valid = false;
     }
 
-    error_log("\$both_dates_valid == $both_dates_valid");
-    # start of review date search range must occur before end, if both start and end specified
-    if ($both_dates_valid && ($_GET[$start_date_fn] != '') && ($_GET[$end_date_fn] != '')) {
-
-        $start_date = DateTime::createFromFormat('n#j#Y', $_GET[$start_date_fn]);
-        $end_date = DateTime::createFromFormat('n#j#Y', $_GET[$end_date_fn]);
-
-        error_log("\$start_date (validating) = " . $start_date->format('n-j-Y'));
-        error_log("\$end_date (validating) = " . $end_date->format('n-j-Y'));
-    
-        if ($start_date > $end_date) {
-            array_push($validation_errors, "Review date: start of date range must occur before end");
-        }  
+    # start_date should preceed end_date (or be the same)
+    if ($start_date && $end_date && ! ($start_date <= $end_date)) {
+        array_push($validation_errors, "Review date: start of date range cannot be after the end");
+        $dates_valid = false;
     }
 
 
@@ -530,17 +533,17 @@ function dbb_validate_form () {
 }
 
 function validateDate($date, $format = 'm-d-Y') {
+
+    # returns true if the date is a valid date in MM/DD/YYYY format, with a
+    
     $d = DateTime::createFromFormat($format, $date);
 
-    // // $formatted = $d->format($format);
-    
-    // // $format_test = $formatted == $date;
-
-    // error_log(var_export($d, true));
-    // error_log(var_export($formatted, true));
-    // error_log(var_export($format_test, true));
-
-    return $d && $d->format($format) == $date;
+    if ($d && $d->format($format) == $date) {
+        return $d;
+    } else {
+        return false;        
+    }
+        
 }
 
 function convert_compare_operator($compare, $type = 'text') {
