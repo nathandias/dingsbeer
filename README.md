@@ -55,8 +55,9 @@ reviews from the Google Sheets data.
 You can view the page source of the generated search page to see which page elements have css id and/or class selectors.
 
 Hints:
-- The search form is enclosed in a div with id='dbb_beer_search_form' and class='dbb_beer_search_form'.
-- The search results are enclosed in a div with id='dbb_beer_search_results' and class='dbb_beer_search_results'.
+- The search form is enclosed in a div with id='dbb_search_form' and class='dbb_search_form'.
+- The search results are enclosed in a div with id='dbb_search_results' and class='dbb_search_results'.
+- Form validation errors are enclosed in a div with id='dbb_validation_errors' and class='dbb_search_results'.
 - The form labels and inputs have distinct ids and possibly classes. View the page source to see the selectors.
 
 You can use the ids and classes to select various elements of the page for css styling. One easy place to add the custom css styles
@@ -116,4 +117,7 @@ See dbb_plugin.zip > theme_support.php for the code that outputs the custom fiel
 1. Use "Bulk Delete" to remove beer review posts from the database en masse (https://wordpress.org/plugins/bulk-delete/)
 2. Use "Taxo Press" that can be used to bulk delete unused taxonomy terms (https://wordpress.org/plugins/simple-tags/)
 3. Try List Custom Taxonomy Widget (and similar) to display custom post data, taxonomy and fields (https://wordpress.org/plugins/list-custom-taxonomy-widget/)
+
+# Questions / Comments / Feedback / Bug Reports
+Email nathan.dias@gmail.com
 

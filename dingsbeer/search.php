@@ -517,7 +517,7 @@ function dbb_validate_form () {
 
     if ($validation_errors) {
         $output = <<<HTML
-            <div class="dbb_search_results" id="dbb_search_results">
+            <div class="dbb_search_results" id="dbb_validation_errors">
             <p id='dbb_error_header' class='dbb_error_header'><strong style='color:red'>Invalid search terms. Please fix these problems.</strong></p>
             <ul>
         HTML;
