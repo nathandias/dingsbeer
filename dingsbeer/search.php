@@ -484,8 +484,8 @@ function dbb_validate_form () {
     # likewise, these combinations should fail
     # start_date    end_date            comment
     # ----------    --------            -------
-    # blank         non-date            (i.e. text, improper formating, not a valid Gregorian date)
-    # non-date      blank               any dates <= end_date
+    # blank         non-date            i.e. text, improper formatting
+    # non-date      blank               i.e. text, improper formatting
     # non-date      non-date            any dates >= start_date
     # valid date > valid date           valid dates supplied, but start_date is after end_date
 
@@ -517,6 +517,7 @@ function dbb_validate_form () {
 
     if ($validation_errors) {
         $output = <<<HTML
+            <div class="dbb_search_results" id="dbb_search_results">
             <strong style='color:red'>Invalid search terms. Please fix these problems.</strong>
             <ul>
         HTML;
@@ -524,8 +525,12 @@ function dbb_validate_form () {
         foreach ($validation_errors as $validation_error) {
             $output .= "<li>$validation_error</li>\n";
         }
-        $output .= "</ul>\n";
 
+        $output .= <<<HTML
+            </ul>
+            </div>
+        HTML;
+        
         return $output;
     } else {
         return false; # passed validation, no errors returned
