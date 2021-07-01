@@ -22,6 +22,9 @@ function dbb_beer_search($atts = null) {
     global $numeric_fields;
 
     # generate the search form
+
+    $output .= "dbb_brewery = " . $_GET['dbb    _brewery'] . "<br/>\n";
+
     $output .= dbb_search_form();
 
     $tried = ($_GET['tried'] == 'yes');
@@ -52,6 +55,7 @@ function dbb_beer_search($atts = null) {
 
             foreach ($tax_fields as $tax_field) {
                 $search_term = $_GET[$dbb_prefix . $tax_field];
+                $search_term = urldecode($search_term);
                 if ($search_term != "") {
                     array_push($tax_query, array(
                         'taxonomy' => $tax_field,
@@ -283,11 +287,17 @@ function display_tax_search_field($tax_name) {
         'order'                  => 'ASC',
         'hide_empty'             => false,
     );
+
     $the_query = new WP_Term_Query($args);
-    foreach($the_query->get_terms() as $term){ 
+    foreach($the_query->get_terms() as $term){
         $term_name = $term->name;
-        $selected = ($_GET[$full_field_name] == $term_name) ? 'selected' : '';
-        $output .= "<option value='$term_name' $selected>$term_name</option>";
+        $url['term_name'] = urlencode($term_name);
+        $html['term_name'] = htmlentities($term_name);
+
+        $clean['term_from_url'] = urldecode($_GET[$full_field_name]);
+        
+        $selected = ($clean['term_from_url'] == $term_name) ? 'selected' : '';
+        $output .= sprintf("<option value=\"%s\" %s>%s</option>", $url['term_name'], $selected, $html['term_name']);
     }
 
     $output .= <<<HTML
