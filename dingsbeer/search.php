@@ -291,13 +291,12 @@ function display_tax_search_field($tax_name) {
     $the_query = new WP_Term_Query($args);
     foreach($the_query->get_terms() as $term){
         $term_name = $term->name;
-        $url['term_name'] = urlencode($term_name);
-        $html['term_name'] = htmlentities($term_name);
+        $url['term_name'] = urlencode($term_name);  # prepare for use in url query string
 
         $clean['term_from_url'] = urldecode($_GET[$full_field_name]);
-        
+
         $selected = ($clean['term_from_url'] == $term_name) ? 'selected' : '';
-        $output .= sprintf("<option value=\"%s\" %s>%s</option>", $url['term_name'], $selected, $html['term_name']);
+        $output .= sprintf("<option value=\"%s\" %s>%s</option>", $url['term_name'], $selected, $term_name);
     }
 
     $output .= <<<HTML
