@@ -23,8 +23,6 @@ function dbb_beer_search($atts = null) {
 
     # generate the search form
 
-    $output .= "dbb_brewery = " . $_GET['dbb    _brewery'] . "<br/>\n";
-
     $output .= dbb_search_form();
 
     $tried = ($_GET['tried'] == 'yes');
