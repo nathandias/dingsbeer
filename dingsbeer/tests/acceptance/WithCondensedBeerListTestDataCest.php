@@ -88,6 +88,40 @@ class WithCondensedBeerListTestDataCest
         $I->see('Žatec');
     }
 
+    public function searchByNotesFieldYieldsResults(AcceptanceTester $I)
+    {
+        $I->fillField('dbb_notes', 'even produces a little lace and retention');
+        $I->click(['id' => 'submit']);
+        $I->seeElement('#dbb_search_results');
+        $I->dontSee('Sorry, no posts matched your criteria.');
+        $I->see('Mission St. Hefeweizen');
+    }
+
+    /**
+     * @dataprovider numericSearchFieldProvider
+     */
+    public function numericSearchFieldsValidate(AcceptanceTester $I, \Codeception\Example $example)
+    {
+        $I->fillField('dbb_' . $example['field'], $example['term']);
+        $I->click(['id' => 'submit']);
+        $I->see($example['result']);
+    }
+
+    /**
+     *  @return array
+     */
+    protected function numericSearchFieldProvider()
+    {
+        $numeric_fields = ['year', 'abv', 'appearance', 'smell', 'mouthfeel', 'taste', 'overall'];
+        $test_data = [];
+        foreach ($numeric_fields as $field) {
+            array_push($test_data,  ['field' => $field, 'term' => 'foo', 'result' => 'Invalid search term']);
+            array_push($test_data, ['field' => $field, 'term' => '0', 'result' => 'Results:']);
+            array_push($test_data, ['field' => $field, 'term' => '3.0', 'result' => 'Results:']);
+        }
+
+        return $test_data;
+    }
 
 
     
