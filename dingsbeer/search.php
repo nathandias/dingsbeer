@@ -132,6 +132,9 @@ function dbb_beer_search($atts = null) {
             $title_search_term = $_GET[$dbb_prefix . 'beer_name'];
             $title_search_compare = $_GET[$dbb_prefix . 'beer_name_compare'];
 
+            $content_search_term = $_GET[$dbb_prefix . 'notes'];
+            $content_search_compare = $_GET[$dbb_prefix . 'notes_compare'];
+
             // error_log("looking for GET value: : {$dbb_prefix}beer_name");
             // error_log("GET array value = " . $_GET[$dbb_prefix . 'beer_name']);
 
@@ -147,17 +150,17 @@ function dbb_beer_search($atts = null) {
                 'date_query' => $date_query,
                 'title_search_term' => $title_search_term,
                 'title_search_compare' => $title_search_compare,
-                'content_search_term' => $_GET[$dbb_prefix . "notes"],
-                'content_search_compare' => $_GET[$dbb_prefix . "notes"],
+                'content_search_term' => $content_search_term,
+                'content_search_compare' => $content_search_compare,
             );
             
          
             // The Query
-            // add_filter( 'posts_where', 'dbb_beer_content_filter', 10, 2);
+            add_filter( 'posts_where', 'dbb_beer_content_filter', 10, 2);
             add_filter( 'posts_where', 'dbb_beer_title_filter', 10, 2 );
             $the_query = new WP_Query( $args );    
             remove_filter( 'posts_where', 'dbb_beer_title_filter', 10 );
-            // remove_filter( 'posts_where', 'dbb_beer_content_filter', 10 );
+            remove_filter( 'posts_where', 'dbb_beer_content_filter', 10 );
             
             // The Loop
             if ( $the_query->have_posts() ) {
@@ -173,9 +176,10 @@ function dbb_beer_search($atts = null) {
                 }
                 $output .= '</ul>';
 
+                
+                
                 $output .= '<div class="pagination">';
-
-
+                
                 $big = 999999999; // need an unlikely integer
                 $output .= paginate_links(
                     array(
@@ -185,7 +189,7 @@ function dbb_beer_search($atts = null) {
                             1,
                             get_query_var('paged')
                         ),
-                        'total' => $the_query->max_num_pages //$q is your custom query
+                        'total' => $the_query->max_num_pages //$the_query is your custom query
                     )
                 );
               
@@ -217,15 +221,15 @@ function dbb_search_form() {
 
     wp_enqueue_style('dbb_style', '/wp-content/plugins/dingsbeer/css/style.css');
 
-    $_SERVER['REQUEST_URI'] = remove_query_arg( '_wp_http_referer', $_SERVER['REQUEST_URI'] );
+    //$_SERVER['REQUEST_URI'] = remove_query_arg( '_wp_http_referer', $_SERVER['REQUEST_URI'] );
     $_SERVER['REQUEST_URI'] = preg_replace('/page\/(\d+)\//', '', $_SERVER['REQUEST_URI']);
 
-    $form_output = "
-        <div class='dbb_search_form' id='dbb_search_form'>
-        <form action='" . $_SERVER['REQUEST_URI'] . "' name='dbb_beer_search' method='GET'>";
-
-    
-    $form_output .= wp_nonce_field( 'dbb_beer_search', '_dbb_nonce', true, false );
+    $form_output = <<<HTML
+        <div class="dbb_search_form" id="dbb_search_form">
+        <form action="{$_SERVER['REQUEST_URI']}" name="dbb_beer_search" method="GET">
+    HTML;
+        
+    $form_output .= wp_nonce_field( 'dbb_beer_search', '_dbb_nonce', false, false );
     
     foreach ($post_fields as $field) {
         $form_output .= display_search_field($field, 'text');
