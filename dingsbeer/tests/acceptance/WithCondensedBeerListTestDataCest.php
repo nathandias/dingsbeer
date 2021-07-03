@@ -23,7 +23,7 @@ class WithCondensedBeerListTestDataCest
         $I->seeElement('#dbb_search_form');
     }
 
-    public function searchResultsWithNoTerms(AcceptanceTester $I)
+    public function searchResultsWithNoTermsYieldsResults(AcceptanceTester $I)
     {
         $I->click(['id' => 'submit']);
         $I->expectTo('see all beers returned as paginated results');
@@ -42,17 +42,9 @@ class WithCondensedBeerListTestDataCest
         $I->see('Sanctification');
     }
 
-    public function searchForNonExistentBeerNameYieldsNoResult(AcceptanceTester $I)
+    public function searchForGarbageBeerNameYieldsNoResult(AcceptanceTester $I)
     {
-        $I->fillField('dbb_beer_name', 'Sanctification FOOBAR'); # a beer name I know doesn't exist in the test data
-        $I->click(['id' => 'submit']);
-        $I->dontSeeElement('#dbb_search_results');
-        $I->see('Sorry, no posts matched your criteria.');
-    }
-
-    public function searchForGarbageNotesValueYieldsNoResult(AcceptanceTester $I)
-    {
-        $I->fillField('dbb_notes', 'lakdjflakdjflsdkfjldkfj');
+        $I->fillField('dbb_beer_name', 'lakdjflakdjflsdkfjldkfj');
         $I->click(['id' => 'submit']);
         $I->dontSeeElement('#dbb_search_results');
         $I->see('Sorry, no posts matched your criteria.');
@@ -97,31 +89,98 @@ class WithCondensedBeerListTestDataCest
         $I->see('Mission St. Hefeweizen');
     }
 
-    /**
-     * @dataprovider numericSearchFieldProvider
-     */
-    public function numericSearchFieldsValidate(AcceptanceTester $I, \Codeception\Example $example)
+    public function searchForGarbageNotesValueYieldsNoResult(AcceptanceTester $I)
     {
-        $I->fillField('dbb_' . $example['field'], $example['term']);
+        $I->fillField('dbb_notes', 'lakdjflakdjflsdkfjldkfj');
         $I->click(['id' => 'submit']);
-        $I->see($example['result']);
+        $I->dontSeeElement('#dbb_search_results');
+        $I->see('Sorry, no posts matched your criteria.');
+    }
+
+
+    /**
+     * @dataprovider numericFieldNameProvider
+     */
+    public function textInNumericSearchFieldsFailsValidation(AcceptanceTester $I, \Codeception\Example $example)
+    {
+        $I->fillField('dbb_' . $example['field'], 'foo');
+        $I->click(['id' => 'submit']);
+        $I->seeElement('#dbb_validation_errors');
+        $I->see('Invalid search terms. Please fix these problems.');
+        $I->see(ucfirst($example['field']) . ' should be a number or left blank');
+    }
+
+     /**
+     * @dataprovider numericFieldNameProvider
+     */
+    public function numericFieldGreaterThanEqualZeroYieldsResults(AcceptanceTester $I, \Codeception\Example $example)
+    {
+        $I->fillField('dbb_' . $example['field'], '0');
+        $I->selectOption('dbb_' . $example['field'] . '_compare', 'greater_than_or_equal');
+        $I->click(['id' => 'submit']);
+        $I->seeElement('#dbb_search_results');
+        $I->seeElement('.pagination');
+        $I->dontSee('Sorry, no posts matched your criteria');
+    }
+
+    /**
+     * @dataprovider numericFieldNameProvider
+     */
+    public function numericFieldGreaterThanEqualZeroPointZeroYieldsResults(AcceptanceTester $I, \Codeception\Example $example)
+    {
+        $I->fillField('dbb_' . $example['field'], '0.0');
+        $I->selectOption('dbb_' . $example['field'] . '_compare', 'greater_than_or_equal');
+        $I->click(['id' => 'submit']);
+        $I->seeElement('#dbb_search_results');
+        $I->seeElement('.pagination');      
+        $I->dontSee('Sorry, no posts matched your criteria');  
+    }
+
+    /**
+     * @dataprovider numericFieldNameProvider
+     */ 
+    public function validValueInNumericFieldYieldsResults(AcceptanceTester $I, \Codeception\Example $example)
+    {
+        # from examining the data, we know that all of the numeric fields do have at least
+        # one beer result with the field value = 4.0...so we should see some results
+        $I->fillField('dbb_' . $example['field'], '4.0');
+        $I->selectOption('dbb_' . $example['field'] . '_compare', 'equals');
+        $I->click(['id' => 'submit']);
+        $I->seeElement('#dbb_search_results');
+        $I->seeElement('.pagination');      
+        $I->dontSee('Sorry, no posts matched your criteria');
+        #TODO: check actual return values
     }
 
     /**
      *  @return array
      */
-    protected function numericSearchFieldProvider()
+    protected function numericFieldNameProvider()
     {
-        $numeric_fields = ['year', 'abv', 'appearance', 'smell', 'mouthfeel', 'taste', 'overall'];
-        $test_data = [];
-        foreach ($numeric_fields as $field) {
-            array_push($test_data,  ['field' => $field, 'term' => 'foo', 'result' => 'Invalid search term']);
-            array_push($test_data, ['field' => $field, 'term' => '0', 'result' => 'Results:']);
-            array_push($test_data, ['field' => $field, 'term' => '3.0', 'result' => 'Results:']);
+        $numeric_fields = ['abv', 'appearance', 'smell', 'taste', 'mouthfeel', 'overall'];
+        $data = [];
+        foreach ($numeric_fields as $f)
+        {
+            array_push($data, ['field' => $f]);
         }
-
-        return $test_data;
+        return $data;
     }
+
+    // /**
+    //  *  @return array
+    //  */
+    // protected function numericSearchFieldProvider()
+    // {
+    //     $numeric_fields = ['year', 'abv', 'appearance', 'smell', 'mouthfeel', 'taste', 'overall'];
+    //     $test_data = [];
+    //     foreach ($numeric_fields as $field) {
+    //         array_push($test_data,  ['field' => $field, 'term' => 'foo', 'result' => 'Invalid search term']);
+    //         array_push($test_data, ['field' => $field, 'term' => '0', 'result' => 'Results:']);
+    //         array_push($test_data, ['field' => $field, 'term' => '3.0', 'result' => 'Results:']);
+    //     }
+
+    //     return $test_data;
+    // }
 
 
     
