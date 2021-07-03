@@ -210,7 +210,7 @@ if(isset($_POST['butimport'])) {
             'post_content'=> $notes,
             'post_status' => 'publish',
             'post_date' => $review_date,
-            'comment_status' => 'closed',
+            'comment_status' => 'open',
             'pingback_status' => 'closed',
           ));
 

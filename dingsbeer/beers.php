@@ -71,7 +71,8 @@ function dingsbeerblog_register_post_type() {
         'excerpt',
         'custom-fields',
         'thumbnail',
-        'page-attributes'
+        'page-attributes',
+        'comments',
     ),
     'taxonomies' => array('brewery', 'style', 'format'),
     'rewrite'   => array( 'slug' => 'beer' ),
