@@ -58,16 +58,15 @@ class WithCondensedBeerListTestDataCest
         $I->see('Bitter American');
         $I->see('Monk');
         $I->see('Fireside Chat');
-        $I->see('Hop Crisis');
         $I->dontSee('Sorry, no posts matched your criteria.');
     }
 
     public function searchForBreweryWithSingleResult(AcceptanceTester $I)
     {
-        $I->selectOption('dbb_brewery', 'Boddingtons');
+        $I->selectOption('dbb_brewery', 'Brewery AAAA');
         $I->click(['id' => 'submit']);
         $I->seeElement('#dbb_search_results');
-        $I->see('Boddingtons Pub Ale');
+        $I->see('Beer BBUU');
         $I->dontSee('Sorry, no posts matched your criteria.');
     }
 
@@ -166,21 +165,137 @@ class WithCondensedBeerListTestDataCest
         return $data;
     }
 
-    // /**
-    //  *  @return array
-    //  */
-    // protected function numericSearchFieldProvider()
-    // {
-    //     $numeric_fields = ['year', 'abv', 'appearance', 'smell', 'mouthfeel', 'taste', 'overall'];
-    //     $test_data = [];
-    //     foreach ($numeric_fields as $field) {
-    //         array_push($test_data,  ['field' => $field, 'term' => 'foo', 'result' => 'Invalid search term']);
-    //         array_push($test_data, ['field' => $field, 'term' => '0', 'result' => 'Results:']);
-    //         array_push($test_data, ['field' => $field, 'term' => '3.0', 'result' => 'Results:']);
-    //     }
+    public function searchByAllNumericFields(AcceptanceTester $I)
+    {
+        $data = [
+            'dbb_abv' => '1.22',
+            'dbb_appearance' =>'2.22',
+            'dbb_smell' => '3.22',
+            'dbb_taste' => '4.22',
+            'dbb_mouthfeel' => '5.22',
+            'dbb_overall' => '6.22',
+        ];      
+        
+        $I->fillField('dbb_beer_name', 'Beer BB');
+        $I->selectOption('dbb_beer_name_compare', 'contains');
 
-    //     return $test_data;
-    // }
+        foreach ($data as $field => $value) {
+            $I->fillField($field, $value);
+            $I->selectOption("{$field}_compare", 'equals');
+        }
+
+        $I->click(['id' => 'submit']);
+        $I->seeElement('#dbb_search_results');
+        $I->see('Beer BBVV');
+        
+        $not_expected = ['Beer BBUU', 'Beer BBWW', 'Beer BBXX', 'Beer BBYY', 'Beer BBZZ'];
+        foreach ($not_expected as $value) {
+            $I->dontSee($value);
+        }
+
+    }
+
+
+
+    /**
+     * @dataprovider numericFieldTestProvider
+     */
+    public function searchByNumericFieldComparison(AcceptanceTester $I, \Codeception\Example $example)
+    {
+        $I->fillField('dbb_beer_name', 'Beer BB');
+        $I->selectOption('dbb_beer_name_compare', 'contains');
+        $I->fillField($example['field'], $example['value']);
+        $I->selectOption($example['field'] . '_compare', $example['comparison']);
+        $I->click(['id' => 'submit']);
+        $I->seeElement('#dbb_search_results');
+        foreach ($example['expected_results'] as $expected_result)
+        {
+            $I->see($expected_result);
+        }
+        foreach ($example['not_expected_results'] as $not_expected_result)
+        {
+            $I->dontSee($not_expected_result);
+        }
+    }
+
+    /**
+     * @return array
+     */
+    protected function numericFieldTestProvider()
+    {
+        $data = [];
+
+        $equals_test = [
+            'dbb_abv' => '1.11',
+            'dbb_appearance' => '2.11',
+            'dbb_smell' => '3.11',
+            'dbb_taste' => '4.11',
+            'dbb_mouthfeel' => '5.11',
+            'dbb_overall' => '6.11',
+        ];
+
+        foreach ($equals_test as $field => $value) {
+            $data[] = [
+                'field' => $field,
+                'value' => $value,
+                'comparison' => 'equals',
+                'expected_results' => ['Beer BBUU'],
+                'not_expected_results' => ['Beer BBVV', 'Beer BBWW', 'Beer BBXX', 'Beer BBYY', 'Beer BBZZ'],
+            ];
+        }
+
+        $greater_and_less_than_tests = [
+            'dbb_abv' => '1.33',
+            'dbb_appearance' => '2.33',
+            'dbb_smell' => '3.33',
+            'dbb_taste' => '4.33',
+            'dbb_mouthfeel' => '5.33',
+            'dbb_overall' => '6.33',
+        ];
+
+        foreach ($greater_and_less_than_tests as $field => $value) {
+            $data[] = [
+                'field' => $field,
+                'value' => $value,
+                'comparison' => 'greater_than',
+                'expected_results' => ['Beer BBXX', 'Beer BBYY', 'Beer BBZZ'],
+                'not_expected_results' => ['Beer BBUU', 'Beer BBVV', 'Beer BBWW'],
+            ];
+        }
+
+        foreach ($greater_and_less_than_tests as $field => $value) {
+            $data[] = [
+                'field' => $field,
+                'value' => $value,
+                'comparison' => 'greater_than_or_equal',
+                'expected_results' => ['Beer BBWW', 'Beer BBXX', 'Beer BBYY', 'Beer BBZZ'],
+                'not_expected_results' => ['Beer BBUU', 'Beer BBVV'],
+            ];            
+        }
+
+        foreach ($greater_and_less_than_tests as $field => $value) {
+            $data[] = [
+                'field' => $field,
+                'value' => $value,
+                'comparison' => 'less_than',
+                'expected_results' => ['Beer BBUU', 'Beer BBVV'],
+                'not_expected_results' => ['Beer BBWW', 'Beer BBXX', 'Beer BBYY', 'Beer BBZZ'],
+            ];            
+        }
+
+        foreach ($greater_and_less_than_tests as $field => $value) {
+            $data[] = [
+                'field' => $field,
+                'value' => $value,
+                'comparison' => 'less_than_or_equal',
+                'expected_results' => ['Beer BBUU', 'Beer BBVV', 'Beer BBWW'],
+                'not_expected_results' => ['Beer BBXX', 'Beer BBYY', 'Beer BBZZ'],
+            ];            
+        }
+
+        return $data;
+    }
+
 
 
     
