@@ -25,9 +25,11 @@ function dbb_display_beer_review_custom_fields($post_id) {
 	global $custom_taxonomies;
 	global $post_meta_keys;
 
-	?>
+	echo <<<HTML
 	<hr>
-	<?php
+	<div class="dbb_custom_fields" id="dbb_custom_fields">
+	HTML;
+
 	foreach ($custom_taxonomies as $taxonomy) {
 	?>
 		<strong><?= ucfirst($taxonomy) ?>: </strong>
@@ -43,6 +45,10 @@ function dbb_display_beer_review_custom_fields($post_id) {
 	}
 	
 	$post_date = get_the_date(  'l, F j, Y' );
-	echo "<strong>Review date:</strong> $post_date<br/>\n";
+	
+	echo <<<HTML
+	<strong>Review date:</strong> $post_date<br>
+	</div>
+	HTML;
 }
 
