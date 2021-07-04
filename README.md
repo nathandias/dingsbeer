@@ -121,3 +121,11 @@ See dbb_plugin.zip > theme_support.php for the code that outputs the custom fiel
 # Questions / Comments / Feedback / Bug Reports
 Email nathan.dias@gmail.com
 
+## Version 0.5 Changes
+- fix: quotation marks dont work in search dropdown selects bug
+- fix: innaccurate results when searching numeric fields
+- possible fix: nonce does not verify on mobile
+- add Codeception acceptance tests to version control
+- enable comments on beer custom post type
+- set comments_status=open when importing beers from CSV
+- improved: enclose custom fields on single beer listing in a <div>
