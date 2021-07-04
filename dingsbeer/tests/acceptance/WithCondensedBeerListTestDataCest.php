@@ -23,6 +23,21 @@ class WithCondensedBeerListTestDataCest
         $I->seeElement('#dbb_search_form');
     }
 
+    public function singleBeerReviewDisplays(AcceptanceTester $I)
+    {
+            $I->amOnPage('/beer/bashah/');
+            $I->see('Bashah');
+            $I->see('Nose offers plenty of hop character');
+            $I->seeElement("#dbb_custom_fields");
+    }
+
+    public function commentsAppearOnSingleBeerPage (AcceptanceTester $I)
+    {
+        $I->amOnPage('/beer/bashah/');  # or any random single beer page
+        $I->see('Submit a Comment');
+        $I->seeElement('#submit');
+    }
+
     public function searchResultsWithNoTermsYieldsResults(AcceptanceTester $I)
     {
         $I->click(['id' => 'submit']);
@@ -33,6 +48,7 @@ class WithCondensedBeerListTestDataCest
         $I->see('DoubleQuote Beer');
         $I->see('Bitter American');
         $I->seeElement('.pagination');
+        $I->dontSee('Sorry, your nonce did not verify.');
     }
 
     public function searchByBeerNameYieldsResult(AcceptanceTester $I) {
@@ -94,6 +110,55 @@ class WithCondensedBeerListTestDataCest
         $I->click(['id' => 'submit']);
         $I->dontSeeElement('#dbb_search_results');
         $I->see('Sorry, no posts matched your criteria.');
+    }
+
+    public function searchForBreweryContainingSingleQuotes(AcceptanceTester $I)
+    {
+        $I->SelectOption('dbb_brewery',"%27Single+Quote+Brewery%E2%80%99");
+        $I->click(['id' => 'submit']);
+        $I->dontSee('Sorry, no posts matched your criteria');
+        $I->seeElement('#dbb_search_results');
+        $I->see('SingleQuote Beer');
+        $I->dontSee('DoubleQuote Ale');
+        $I->dontSee("DoubleQuote Beer");
+    }
+
+    public function searchForBreweryContainingDoubleQuotes(AcceptanceTester $I)
+    {
+        $I->SelectOption('dbb_brewery','%E2%80%9CDoubleQuote+Brewhaus%E2%80%9D');
+        $I->click(['id' => 'submit']);
+        $I->dontSee('Sorry, no posts matched your criteria');
+        $I->seeElement('#dbb_search_results');
+        $I->dontSee('SingleQuote Beer');
+        $I->see('DoubleQuote Ale');
+        $I->see("DoubleQuote Beer");
+    }
+
+    public function searchForStPetersBrewery(AcceptanceTester $I)
+    {
+        $I->SelectOption('dbb_brewery','St.+Peter%27s+Brewery+Co+Ltd');
+        $I->click(['id' => 'submit']);
+        $I->dontSee('Sorry, no posts matched your criteria');
+        $I->seeElement('#dbb_search_results');
+        $I->dontSee('SingleQuote Beer');
+        $I->dontSee('DoubleQuote Ale');
+        $I->dontSee("DoubleQuote Beer");
+        // $I->see("St. Peter's Sorgham Beer");
+        // $I->see("St. Peter's Winter Ale");
+        // $I->see("St. Peter's Organic Ale");
+        // $I->see("St. Peter's Ruby Red Ale");
+        // $I->see("St. Peter's India Pale Ale");
+
+        # TODO: understand the character encoding issues to be able to output and check for
+        #    St. Peter's Sorgham Beer
+        #  -or-
+        #    St. Peter&#8217;s Sorgham Beer
+        $I->see('St. Peter');
+        $I->see("Sorgham Beer");
+        $I->see("Winter Ale");
+        $I->see("Organic Ale");
+        $I->see("Ruby Red Ale");
+        $I->see("India Pale Ale");
     }
 
 
