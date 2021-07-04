@@ -228,7 +228,11 @@ function dbb_search_form() {
         <div class="dbb_search_form" id="dbb_search_form">
         <form action="{$_SERVER['REQUEST_URI']}" name="dbb_beer_search" method="GET">
     HTML;
-        
+
+    # wp_nonce($action, $name, bool $referrer, bool $return)
+    # set $referrer = false to supress including _wp_referrer in the URL query_string
+    # $echo = false, because we're doing this in a plugin, so no echo
+    # TODO: does this fix Adrian D. report of nonce failing on mobile? how to verify
     $form_output .= wp_nonce_field( 'dbb_beer_search', '_dbb_nonce', false, false );
     
     foreach ($post_fields as $field) {
