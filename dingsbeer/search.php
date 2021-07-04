@@ -93,12 +93,12 @@ function dbb_beer_search($atts = null) {
                 array_push($meta_query, array(
                     'key' => $numeric_field,
                     'value' => $search_term,
-                    'type' => 'numeric',
-                    'compare' => $compare_operator
+                    'type' => 'DECIMAL(10,3)',
+                    'compare' => $compare_operator,
                 ));
             }
 
-
+            
             # by this point, the dates have already been validated, so safe to convert non-'' values
             # to Y-m-d format
 
@@ -153,7 +153,7 @@ function dbb_beer_search($atts = null) {
                 'content_search_term' => $content_search_term,
                 'content_search_compare' => $content_search_compare,
             );
-            
+          
          
             // The Query
             add_filter( 'posts_where', 'dbb_beer_content_filter', 10, 2);
